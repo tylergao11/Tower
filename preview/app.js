@@ -17,20 +17,12 @@ async function loadView(){
 }
 function drawSprite(id,x,y,w,h,extra={}){art.drawSprite(ctx,id,x,y,w,h,extra);}
 function story(){const s=art.manifest.scene;drawSprite(s.intro.background,0,0,canvas.width,canvas.height,{pivot:[0,0]});
- const [cx,cy,cs]=s.intro.chair;art.draw(ctx,'B05-chair','idle',0,{x:cx,y:cy,scale:cs});
  for(const [i,d]of s.intro.dancers.entries())art.draw(ctx,'B05-dancer','dance',actorPhase('B05-dancer','dance',i*.4),{x:d[0],y:d[1],scale:d[2]});
  const [x,y,scale]=s.intro.lord;art.draw(ctx,'L01','idle',actorPhase('L01','idle'),{x,y,scale});
  caption.textContent='营帐 · 刘备观舞';
 }
 function battle(){const s=art.manifest.scene;drawSprite(s.background,0,0,canvas.width,canvas.height,{pivot:[0,0]});
  const centers=s.columnCenters,cell=(centers.end-centers.start)/(centers.count-1),at=c=>centers.start+cell*c;
- for(let floor=1;floor<3;floor++)for(let c=0;c<centers.count;c++){
-  const isDoor=floor===1&&c===7;
-  if(!isDoor)drawSprite(s.floorModule,at(c),s.laneBaselines[floor]+19,cell+2,46,{pivot:[.5,.5]});
-  drawSprite(s.beam,at(c),s.laneBaselines[floor]+60,cell+3,25);
- }
- for(const stairs of Object.values(s.stairs)){const [x,y,w,h]=stairs.rect;drawSprite(stairs.sprite,x,y,w,h,{pivot:[0,0]});}
- for(let c=1;c<9;c++){drawSprite(s.beam,at(c),81,cell+3,20);if(c===1||c===8)drawSprite(s.post,at(c),s.laneBaselines[2],41,235,{pivot:[.5,1]});}
  art.draw(ctx,'B03-gate','open',phase(5),{x:1495,y:s.laneBaselines[1],scale:.49});
  art.draw(ctx,'B03-barrier','open',phase(5,.5),{x:135,y:s.laneBaselines[2],scale:.3});
  for(const [i,o]of s.showcase.entries()){
@@ -38,15 +30,14 @@ function battle(){const s=art.manifest.scene;drawSprite(s.background,0,0,canvas.
   const y=s.laneBaselines[o.floor]-(o.elevated?68:0);
   art.draw(ctx,o.id,o.action,phase(2.5,i*.085),{x:at(o.column-1),y,scale:size,facing:o.facing??1});
  }
- const lx=1520,ly=s.laneBaselines[2];art.draw(ctx,'B05-chair','idle',0,{x:lx,y:ly,scale:.31});art.draw(ctx,'L01','idle',phase(3),{x:lx,y:ly,scale:.31});
- for(const [color,x,y]of [['red',43,s.laneBaselines[0]],['blue',1568,s.laneBaselines[1]],['green',1420,s.laneBaselines[2]]])art.draw(ctx,'B-flag-'+color,'idle',phase(3),{x,y,scale:.42});
+ const lx=1520,ly=s.laneBaselines[2];art.draw(ctx,'L01','idle',phase(3),{x:lx,y:ly,scale:.31});
  caption.textContent='新野城防 · 场景、挂点与机关动作';
 }
-function library(){ctx.fillStyle='#23372d';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='#c4b58822';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,790);ctx.lineTo(canvas.width,790);ctx.stroke();
+function library(){ctx.fillStyle='#211d18';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='#c4b58822';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,790);ctx.lineTo(canvas.width,790);ctx.stroke();
  const o=art.manifest.objects[objectId],p=running?artPhase(o.clips[action],clock):Number(phaseInput.value)/1000;
  if(running)phaseInput.value=Math.round(p*1000);
  const hiddenSlots=document.querySelector('#shield').checked?[]:o.shieldSlots??[];
- const pose=art.draw(ctx,objectId,action,p,{x:document.querySelector('#parts').checked?480:836,y:790,scale:1.35,facing,hiddenSlots});
+ const pose=art.draw(ctx,objectId,action,p,{x:document.querySelector('#parts').checked?480:836,y:790,scale:1.35,facing,hiddenSlots,variant:document.querySelector('#shield').checked?undefined:'unshielded'});
  if(document.querySelector('#parts').checked){let i=0;for(const layer of pose.layers){const x=1010+(i%3)*190,y=170+Math.floor(i/3)*190;const ratio=layer.width/layer.height;const w=ratio>1?140:140*ratio,h=ratio>1?140/ratio:140;drawSprite(layer.sprite,x,y,w,h);ctx.fillStyle='#d7c9a8';ctx.font='17px system-ui';ctx.textAlign='center';ctx.fillText(layer.slot,x,y+90);i++;}}
  caption.textContent=o.name+' · '+(art.manifest.actionLabels[action]??action);canvas.dataset.object=objectId;canvas.dataset.action=action;canvas.dataset.phase=p.toFixed(4);
 }

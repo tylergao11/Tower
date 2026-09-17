@@ -1,0 +1,190 @@
+{
+  "waves": [
+    {
+      "wave": 1,
+      "count": 6,
+      "lastSpawn": 15,
+      "hp": 600
+    },
+    {
+      "wave": 2,
+      "count": 8,
+      "lastSpawn": 14,
+      "hp": 900
+    },
+    {
+      "wave": 3,
+      "count": 11,
+      "lastSpawn": 27,
+      "hp": 1100
+    },
+    {
+      "wave": 4,
+      "count": 11,
+      "lastSpawn": 25,
+      "hp": 1290
+    },
+    {
+      "wave": 5,
+      "count": 13,
+      "lastSpawn": 28,
+      "hp": 1280
+    },
+    {
+      "wave": 6,
+      "count": 12,
+      "lastSpawn": 27,
+      "hp": 2070
+    },
+    {
+      "wave": 7,
+      "count": 17,
+      "lastSpawn": 29,
+      "hp": 1860
+    },
+    {
+      "wave": 8,
+      "count": 18,
+      "lastSpawn": 36,
+      "hp": 3470
+    }
+  ],
+  "totalEnemies": 96,
+  "spawnScheduleMinimum": 244,
+  "scenarios": [
+    {
+      "scenario": "heroes-only",
+      "result": "lost",
+      "wave": 7,
+      "time": 1174.6,
+      "kills": 76,
+      "captures": 2,
+      "losses": 0,
+      "spent": 5860,
+      "peakEnemies": 13,
+      "units": 0,
+      "transitions": [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          66.9
+        ],
+        [
+          3,
+          134.9
+        ],
+        [
+          4,
+          191.1
+        ],
+        [
+          5,
+          806.6
+        ],
+        [
+          6,
+          857.5
+        ],
+        [
+          7,
+          999.2
+        ]
+      ]
+    },
+    {
+      "scenario": "mixed-defense",
+      "result": "won",
+      "wave": 8,
+      "time": 445.9,
+      "kills": 96,
+      "captures": 0,
+      "losses": 41,
+      "spent": 5380,
+      "peakEnemies": 11,
+      "units": 21,
+      "transitions": [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          84.2
+        ],
+        [
+          3,
+          164.7
+        ],
+        [
+          4,
+          206.6
+        ],
+        [
+          5,
+          248.5
+        ],
+        [
+          6,
+          284.6
+        ],
+        [
+          7,
+          349.9
+        ],
+        [
+          8,
+          395.8
+        ]
+      ]
+    },
+    {
+      "scenario": "traps-defense",
+      "result": "won",
+      "wave": 8,
+      "time": 440.6,
+      "kills": 96,
+      "captures": 0,
+      "losses": 38,
+      "spent": 5030,
+      "peakEnemies": 11,
+      "units": 21,
+      "transitions": [
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          83.8
+        ],
+        [
+          3,
+          152.9
+        ],
+        [
+          4,
+          196
+        ],
+        [
+          5,
+          237.9
+        ],
+        [
+          6,
+          273.9
+        ],
+        [
+          7,
+          339.2
+        ],
+        [
+          8,
+          385.1
+        ]
+      ]
+    }
+  ]
+}

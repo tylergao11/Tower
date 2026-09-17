@@ -1,21 +1,52 @@
-/* Panels and icons are cropped from the shared art atlas at load time. */
-button{background:var(--art-ivory-button) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;color:#342719}
-button.primary{background:var(--art-gold-button) center/100% 100% no-repeat;border:0;color:#342416}
-.topbar{background:var(--art-hud-bar) center/100% 100% no-repeat;border:0;box-shadow:none;padding-inline:38px}
-.panel{background:var(--art-panel) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;color:#3c3024;padding:64px 65px}
-.panel h1,.panel small,.selection header>span,.selection-footer p,.enemy-guide,.results b{color:#3e3021}
-.selection-footer p small,.results span{color:#675241}
-.selection header{border-color:#826a4b55}.selection{width:1250px;max-height:860px}
-.card{background:var(--art-card) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0}
-.card.chosen{border:0;box-shadow:none;filter:drop-shadow(0 0 5px #ffdc74)}
-.card.chosen:after{content:"";position:absolute;inset:8px;border:2px solid #dc9d34;pointer-events:none}
-.card-name{background:#ead9b6d9;width:85%;font-size:19px}.card-price{background:transparent;color:#3a2816;display:flex;align-items:center;justify-content:center;gap:3px;bottom:2px}
-.card-art{top:-7px;left:14px;width:114px;height:98px}.selection .card-art{top:-6px;left:8%;width:84%;height:127px}
-.ui-icon{width:27px;height:27px;object-fit:contain;vertical-align:middle;pointer-events:none}.card-price .ui-icon{width:19px;height:19px}
-.top-actions .ui-icon{width:32px;height:32px}.emergency button{background:var(--art-card) center/100% 100% no-repeat;border:0;font-size:24px;gap:0;color:#35281b;position:relative;padding:8px}
-.emergency .ui-icon{width:45px;height:45px}.emergency small{color:#5b3e25;font-size:17px;position:absolute;right:18px;top:14px}
-#deck-bar{background:#171c1df0}.gold-seal .ui-icon{width:80px;height:80px;display:block;margin:auto}
-#toast{background:var(--art-warning-bar) center/100% 100% no-repeat;box-shadow:none;padding:20px 65px}
-.opening-ui{position:absolute;inset:0;z-index:3;pointer-events:none}.opening-dialogue{position:absolute;width:440px;padding:32px 42px;background:var(--art-panel) center/100% 100% no-repeat;color:#34291c;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}
-.opening-dialogue small{font-size:21px;letter-spacing:5px;color:#755633}.opening-dialogue p{font-family:"Microsoft YaHei",sans-serif;font-size:30px;font-weight:bold;margin:9px 0;white-space:nowrap}
-.opening-ui.speaking .opening-dialogue{opacity:1;transform:translateY(0)}.opening-skip{position:absolute;right:45px;bottom:30px;padding:18px 36px;font-size:23px;opacity:0;pointer-events:none;transition:opacity .3s}.opening-ui.can-skip .opening-skip{opacity:1;pointer-events:auto}
+/* Shared parchment and paint materials; values and names stay live and legible. */
+:root{--ui-paper:url('../assets/game/noncharacter-redraw/ui/panel.webp');--ui-coin:url('../assets/game/noncharacter-redraw/ui/coin.webp');--ui-plaque:url('../assets/game/ui-redraw/plaque.webp');--ui-button:url('../assets/game/ui-redraw/button.webp');--ui-logo:url('../assets/game/ui-redraw/logo.webp');--ui-shield:url('../assets/game/ui-redraw/shield.webp');--ui-card:url('../assets/game/noncharacter-redraw/ui/card.webp');--ui-tray:url('../assets/game/noncharacter-redraw/ui/tray.webp');--ui-speech:url('../assets/game/noncharacter-redraw/ui/speech.webp')}
+
+.card{background:var(--ui-card) center/100% 100% no-repeat;border:0;box-shadow:none;padding:3px 5px 5px}
+.card-info{background:none}
+.battle-tray{background:var(--ui-tray) center/100% 100% no-repeat;border:0;outline:0;box-shadow:none;padding:10px 16px}
+.pause-button{background-image:url('../assets/game/noncharacter-redraw/ui/pause.webp')}
+.sound-button{background-image:url('../assets/game/noncharacter-redraw/ui/sound.webp')}
+.pause-button i,.sound-button svg{visibility:hidden}.sound-button.muted{opacity:.5}
+
+/* Touch gestures: the field pans, the deck swipes horizontally, the roster scrolls vertically. */
+#game canvas{touch-action:none}
+#stage{-webkit-touch-callout:none}
+#deck-bar{overflow-x:auto;overflow-y:hidden;touch-action:none;overscroll-behavior:contain;scrollbar-width:none}
+#deck-bar .card{flex:0 0 116px;touch-action:none}
+#deck-bar::-webkit-scrollbar,.selection-cards::-webkit-scrollbar{display:none}
+.selection{display:flex;flex-direction:column;padding:62px 86px 48px}
+.selection .panel-heading{flex:0 0 84px;display:flex;align-items:flex-start;justify-content:space-between;padding:0 16px;gap:28px}
+.loadout-count{position:static;display:flex;align-items:center;gap:16px;margin:0 18px 0 0;padding:9px 15px;font:900 29px/1 var(--heading);color:#392b1e;white-space:nowrap}
+.loadout-count b{font:bold 38px/1 Arial,sans-serif;font-variant-numeric:tabular-nums}.loadout-count em{font:700 26px/1 Arial,sans-serif;margin-left:8px;color:#604a33}.loadout-count.is-full{color:#942f22}
+.selection-cards{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;touch-action:none;overscroll-behavior:contain;scrollbar-width:none;align-content:start;padding:4px 6px 12px}
+.selection-cards .card{touch-action:none}
+.selection .selection-footer{flex-shrink:0;margin-top:18px;justify-content:flex-end;padding:0 12px}
+.selection-footer .selection-actions{display:flex;flex-direction:row;gap:10px;flex-shrink:0}
+.selection-actions .paper-button{width:195px;font-size:30px}
+.selection-choice>span{font:700 20px/1.25 var(--heading);white-space:normal;min-height:50px;padding:0 2px;overflow-wrap:anywhere}
+.hero-choice .card-name{color:#ffdf9a}
+.card.chosen{box-shadow:inset 0 0 0 5px #d2b16d}
+.selection .card.chosen{box-shadow:inset 0 0 0 6px #b73d2b,inset 0 0 0 9px #e5be77}
+.selection .card.chosen .card-check{right:5px;top:5px;padding:3px 10px 6px;background:#a73726;color:#fff0c3;font:bold 33px/34px Arial,sans-serif;border-radius:0 0 0 9px;border-left:2px solid #e5be77;border-bottom:2px solid #e5be77}
+.card-price{font-weight:700}.card.unaffordable .card-price{color:#e2a184}
+.cooldown-time{left:auto;right:6px;top:7px;min-width:42px;padding:4px 6px;border-radius:4px;background:#221a13de;font:700 22px/1.1 var(--heading)}.cooldown-time:empty{display:none}
+.emergency{width:96px;height:128px;margin-right:28px;display:flex;align-items:center;justify-content:center}.skill{width:96px;height:122px}.skill i{width:104px;height:98px;margin:-6px -4px -4px}.skill strong{font-size:30px}
+.treasury{width:108px;background:#17120b;border:3px solid #e1b24e}
+.treasury>span{height:43px}.treasury .coin{width:44px;height:44px}
+.treasury strong{font-size:44px;line-height:1.1;color:#ffe56e;border-top-color:#a17c36;text-shadow:0 2px 0 #000}
+.treasury small{font-size:24px;color:#fff0bd}
+.economy-card{border-color:#ffd45c;background:#5c421a;box-shadow:inset 0 0 0 3px #bd8a29,0 0 7px #edb94399}
+.economy-card .card-name{color:#ffe477}
+.card-purpose{position:absolute;top:6px;left:5px;z-index:4;padding:3px 5px;border:2px solid #ffd65a;border-radius:4px;background:#30210deF;color:#ffe477;font:900 20px/1.1 var(--heading);pointer-events:none}
+.selection .required-card{cursor:default}
+.selection .required-card.chosen .card-check{font:900 23px/30px var(--heading);background:#76501a;color:#ffe477}
+#lord-danger{position:absolute;inset:0;z-index:20;pointer-events:none;border:8px solid #df352bd9;box-shadow:inset 0 0 85px 24px #d81716b3;animation:lord-danger-pulse 1.4s ease-in-out infinite}
+#lord-direction{position:absolute;z-index:21;width:108px;height:108px;display:flex;align-items:center;flex-direction:column;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 3px 3px #1a100bcc)}
+#lord-direction svg{width:76px;height:76px;flex-shrink:0;overflow:visible}
+#lord-direction path{fill:#ffdf68;stroke:#3b230c;stroke-width:6;stroke-linejoin:round}
+#lord-direction strong{padding:3px 8px;border:2px solid #ffd573;border-radius:5px;background:#35220ded;color:#ffe8a6;font:900 25px/1.15 var(--heading);white-space:nowrap}
+#lord-direction.danger path{fill:#ff6954;stroke:#fff0bf}
+#lord-direction.danger strong{background:#811c16f2;color:#fff1b8;border-color:#ffba71}
+#lord-danger[hidden],#lord-direction[hidden]{display:none}
+@keyframes lord-danger-pulse{0%,100%{opacity:.68}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){#lord-danger{animation:none}}

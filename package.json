@@ -5,11 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "prebuild": "node tools/configure-art.mjs",
+    "prebuild": "node tools/configure-art.mjs && node tools/measure-characters.mjs",
     "build": "tsc --noEmit && vite build",
-    "art:build": "node tools/prepare-art.mjs && node tools/configure-art.mjs",
-    "art:configure": "node tools/configure-art.mjs",
+    "art:build": "node tools/prepare-art.mjs && node tools/pack-ui-redraw.mjs && node tools/pack-noncharacter-redraw.mjs && node tools/configure-art.mjs && node tools/prune-runtime-art.mjs",
+    "art:clean": "node tools/prune-runtime-art.mjs",
+    "art:configure": "node tools/configure-art.mjs && node tools/measure-characters.mjs",
     "art:preview": "node tools/serve-art.mjs",
+    "art:check-characters": "node tools/check-character-art.mjs",
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {

@@ -47,6 +47,8 @@ export function sampleArt(manifest, objectId, action, phase, options={}) {
   for(const [name,base] of Object.entries(object.nodes)) {
     const defaults={x:0,y:0,rotation:0,scaleX:1,scaleY:1,alpha:1,z:0,pivot:[.5,.5],...base};
     nodes[name]={...defaults,...frameAt(clip.tracks?.[name],phase,defaults)};
+    const replacement=object.variants?.[options.variant]?.[nodes[name].sprite];
+    if(replacement)nodes[name].sprite=replacement;
   }
   for(const name of options.hiddenSlots??[]) if(nodes[name]) nodes[name].alpha=0;
   const offsets=Object.fromEntries(Object.entries(nodes).map(([name,n])=>[name,[n.x,n.y]]));

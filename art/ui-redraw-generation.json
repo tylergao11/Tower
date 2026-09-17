@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-17",
+  "tool": "image_gen.imagegen",
+  "reference": "C:/Users/84720/AppData/Local/Temp/codex-clipboard-9bdb6294-ff99-4265-a1b6-cf1f80eb61d0.png",
+  "uiSource": "art/source/ui-redraw/kit.png",
+  "uiGeneratedSource": "C:/Users/84720/.codex/generated_images/01a0af32-2474-76c3-b93f-23de804d6b49/exec-f741aa55-48b7-4f3f-9449-fe5c25300a81.png",
+  "uiPrompt": "Production transparent 3-column by 2-row UI sheet. Bold ink contours and large warm shapes following the reference. Top left: 主公快跑 brush logo, gold 主公 and red 快跑, parchment subtitle 新野. Top middle: empty parchment plaque. Top right: empty gold button. Bottom left: empty scarlet vertical banner. Bottom middle: flaming gold shield marked 蜀. Bottom right: scarlet camp tent surrounded by a green/gold recall arrow. No filigree, jade, human figures or fine engravings. Genuine alpha transparency outside each cutout.",
+  "mapSource": "art/source/map-redraw/shu-camp-style-v2.png",
+  "mapGeneratedSource": "C:/Users/84720/.codex/generated_images/01a0af32-2474-76c3-b93f-23de804d6b49/exec-4a29dd5a-e1f5-493a-961d-eec6edce9d5c.png",
+  "mapPrompt": "STYLE-TRANSFER REPAINT. First image locks map content and composition: top red command tents, middle town, bottom outside wall and dirt road, left stairs middle to top, right stairs bottom to middle. Second image is painting style only: expressive heavy black ink contours, chunky stone and wood volumes, rough hand-painted wear, blue-grey dusk shadows and orange torchlight. Redraw surfaces in that style; preserve all geometry and floor baselines; reduce delicate repeated details. Main tent 刘, two flags 蜀, remaining flags blank red. One integrated empty map, no units, UI, extra beam or new stairs.",
+  "processing": "tools/pack-ui-redraw.mjs crops six alpha sprites and encodes WebP. Original map encoded as one WebP, no separation of ground and scenery. Prompts above summarize the final edit instructions; generated originals remain at the recorded paths.",
+  "reusedMaterials": [
+    "assets/game/camp-paper-v1.webp",
+    "assets/game/camp-coin-v1.webp"
+  ],
+  "characterAssets": "Unchanged by this UI redraw. Card portraits use the existing game animation manifest.",
+  "mapReferences": [
+    "C:/Users/84720/AppData/Local/Temp/codex-clipboard-bee26918-5e90-4d35-9991-d0eba0d8fb83.png",
+    "C:/Users/84720/AppData/Local/Temp/codex-clipboard-7155364f-951b-4cc0-a7ed-5a3a686f4fbe.png"
+  ],
+  "finalMapEdit": "用户最终选择红旗版本，保留刘字主帐与蜀字营旗。绿色试稿留存，但不接入游戏。",
+  "uiFinish": "按用户卡栏与章节牌局部参考改为哑光手绘：薄轮廓、低对比纸纹、少量分块阴影；去除高亮金属倒角、强反光和白色光环。",
+  "uiStyleReferences": [
+    "C:/Users/84720/AppData/Local/Temp/codex-clipboard-ac512d38-315e-495b-9aec-0d1cec7a50f5.png",
+    "C:/Users/84720/AppData/Local/Temp/codex-clipboard-2814dbac-ccd2-484d-8a65-2651e3e089a1.png"
+  ]
+}

@@ -1,1 +1,39 @@
-{"background":{"maxWidth":1280,"maxHeight":720,"quality":68},"default":{"partMax":128,"quality":74},"gutter":2,"maxAtlasEdge":1024,"overrides":{"L01":{"partMax":160,"quality":78},"B05-dancer":{"partMax":224,"quality":76},"MX-A":{"partMax":160,"quality":76},"MX-B":{"partMax":160,"quality":76},"B-PARTS":{"partMax":256,"quality":76},"FX":{"partMax":96,"quality":72},"UI-ICONS":{"partMax":64,"quality":76},"UI-PANELS":{"partMax":320,"quality":76}}}
+{
+  "background": {
+    "maxWidth": 1280,
+    "maxHeight": 720,
+    "quality": 68
+  },
+  "default": {
+    "partMax": 128,
+    "quality": 74
+  },
+  "gutter": 2,
+  "maxAtlasEdge": 1024,
+  "overrides": {
+    "MX-A": {
+      "partMax": 160,
+      "quality": 76
+    },
+    "MX-B": {
+      "partMax": 160,
+      "quality": 76
+    },
+    "B-PARTS": {
+      "partMax": 256,
+      "quality": 76
+    },
+    "FX": {
+      "partMax": 96,
+      "quality": 72
+    },
+    "UI-ICONS": {
+      "partMax": 64,
+      "quality": 76
+    },
+    "UI-PANELS": {
+      "partMax": 320,
+      "quality": 76
+    }
+  }
+}

@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "tool": "built-in image_gen",
+  "styleReference": "art/reference/zhugong-kuaipao-style.png",
+  "strategy": "whole-body-key-poses",
+  "jobs": [
+    {
+      "id": "L01",
+      "name": "刘备",
+      "source": "art/source/characters/L01/poses.png",
+      "generated": "C:/Users/84720/.codex/generated_images/01a0af3b-a3f1-70e1-918e-362af418da28/exec-f46be292-18ad-41e4-8cde-034e7956815f.png",
+      "prompt": "Use case: identity-preserve / production 2D full-body character animation.\nInput 1 is the APPROVED ART STYLE: Chinese Three Kingdoms comic tower defense, rough confident thick black ink contour, angular adult caricature faces, hugely expressive eyebrows/eyes/mouth, earthy hand-painted color, emphatic action silhouettes. Input 2 is LIU BEI's exact identity reference. Preserve his long comic face, little black mustache and pointed goatee, high black topknot with gold tie, pale yellow-green coat with ivory collar, deep green trousers and brown gold-trim boots. Full body drawings only. NO detached body parts, NO skeletal cutouts. Simplified bold expressive animation, not anatomical realism, not round baby chibi.\n\nCreate ONE transparent RGBA sprite sheet of exactly TWELVE complete poses of this SAME Liu Bei, in an exact 4-column x 3-row grid, landscape 4:3, ideally 2048x1536. Each cell has equal square dimensions, 10% clear padding, no art crossing cell boundaries, no text or grid lines. Same figure scale and camera in every cell. For all standing poses soles on 90% of cell height, head height consistent. All poses generally face screen RIGHT except reclined lounging poses which face diagonally LEFT toward viewers in the tent. Chair exists only in cells 1 and 2 and is part of those whole-body drawings. Character, limbs and garments are fully painted connected, natural hands and five digits when visible.\n\nRow 1, left to right:\n1. IDLE A: smug relaxed Liu Bei reclining in a low simple dark wooden chaise with ochre cushion, feet visible together, left hand lazily inviting the musicians to continue. Entire chair fits this cell.\n2. IDLE B: same chaise, same seat/feet/head scale and placement, Liu Bei laughing smugly with eyes closed, lazy hand gesture slightly lifted. A small alternate expression and gesture for the seated loop.\n3. ALARM: upright startled full body, BOTH feet on ground, shoulders raised, hands up, huge bulging eyes and open rectangular mouth, coat lifting with surprise.\n4. CARRIED A: complete Liu Bei held horizontally in midair WITHOUT any captor, head at screen RIGHT, feet at screen LEFT, abdomen centered in the cell, back slightly arched, yelling with fingers spread, knees bent. Clean complete silhouette suitable for attaching to a soldier's shoulder.\n\nRow 2:\n5. CARRIED B: same horizontal center/head location and same scale as cell 4, legs kick alternately, arms flail differently, brows scrunch, same carried direction.\n6. LANDING: complete Liu Bei squatting very low with one hand braced near the ground, startled comic recoil, coat folds squash down, soles at baseline.\n7. CROUCH A: low frightened crouch, hands beside cheeks, staring right, full body with both boots readable, bottom at baseline.\n8. CROUCH B: same crouch proportions and position, mouth shouting, arms lifted slightly in a pleading motion, alternate expression.\n\nRow 3:\n9. STAND UP: halfway rising from crouch, knees bent, arms balancing, full body, wide worried eyes.\n10. RUN A: frantic exaggerated running toward screen RIGHT, near/right leg stretched FORWARD to screen right, far/left leg bent BACK to screen left, opposite arm swing, huge terrified expression like identity reference. Ground contact at baseline.\n11. RUN B: opposite running contact: near/right leg bent BACK to screen left, far/left leg stretched FORWARD to screen right, opposite arm swing, robe tails and topknot whip. This must visibly differ from cell 10 and keep identical face/clothing/scale.\n12. VICTORY: both feet planted at baseline, Liu Bei exhales happily with a ridiculous relieved grin, shoulders relaxed, one hand wiping sweat from forehead.\n\nTransparent pixels outside isolated poses; preserve alpha including spaces between fingers and legs. No background, no floor, no drop shadows, no speech bubbles, no labels, no weapons, no added characters. Match the supplied approved comic style closely, prioritizing large readable expressions and poses.",
+      "slug": "liubei",
+      "grid": [
+        4,
+        3
+      ],
+      "kind": "lord",
+      "cells": [
+        "idle-a",
+        "idle-b",
+        "alarm",
+        "carried-a",
+        "carried-b",
+        "landing",
+        "crouch-a",
+        "crouch-b",
+        "stand",
+        "walk-a",
+        "walk-b",
+        "cheer"
+      ],
+      "frameSize": 320,
+      "status": "approved",
+      "quality": 82
+    },
+    {
+      "id": "E01",
+      "name": "曹军步卒",
+      "slug": "cao-footman",
+      "kind": "enemy",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E01/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-148bc4f4-70a9-4d40-9c81-5b9f80b8dc66.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 3 rows, twelve complete poses, landscape 4:3, ideally 2048x1536.\nCharacter: the ordinary Cao sword infantry in reference 2. Preserve his angular mustached angry face, red helmet plume and red neck scarf, dark weathered lamellar armor, beige trousers and brown boots. Right hand holds the curved saber in normal combat poses. Left hand is free. No shield.\nRow 1: (1) planted ready stance with saber forward; (2) energetic running step, right/near foot forward; (3) visibly different running passing pose, feet close under hips and body lifted, saber steady; (4) huge attack anticipation, right arm raising saber behind/above head, body leaning back.\nRow 2: (5) strong saber slash forward/down toward right, torso lunging and face yelling; (6) comic recoil from a hit, shoulders pulled back, face squinting; (7) grabbing forward with both hands, saber SHEATHED and not in either hand; (8) CARRY A, walking with BOTH empty hands raised beside and above his shoulder to support a separate captive, one palm at shoulder height in front and the other behind the shoulder, saber sheathed, no captive drawn.\nRow 3: (9) CARRY B, same shoulder and palm height as cell 8 but alternate bent-knee passing step, body bob, saber sheathed, no captive; (10) off-balance falling backward with arms flailing; (11) comical defeated body lying on its side along bottom of cell, eyes shut and tongue showing, saber beside him, entire figure visible; (12) taunting planted stance, saber lowered and free fist lifted, mouth shouting.\nLarge gestures and clear expression changes; all equipment fits cell. Carry drawings must be complete single soldiers with empty supported space above the shoulder, not soldiers carrying another illustrated person.",
+      "quality": 82
+    },
+    {
+      "id": "E02",
+      "name": "盾兵",
+      "slug": "cao-shieldman",
+      "kind": "shield",
+      "grid": [
+        4,
+        4
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "strike",
+        "block",
+        "hit",
+        "carry-a",
+        "carry-b",
+        "bare-idle",
+        "bare-walk-a",
+        "bare-walk-b",
+        "bare-strike",
+        "bare-grab",
+        "bare-carry-a",
+        "bare-carry-b",
+        "dead"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E02/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-5105a769-cd3a-453f-853b-181c9d20146a.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 4 rows, SIXTEEN complete poses, square 2048x2048.\nCharacter: EXACT bulky Cao shield infantry from reference 2: angry angular face and black beard, dark gray helmet with red plume, red scarf, dark iron lamellar armor, beige trousers, brown boots. A large round wooden shield with iron rim and center boss in his LEFT hand; saber in RIGHT hand. He is stockier than ordinary infantry. Each frame contains the WHOLE soldier; shield is painted with him, not a detached part.\n\nFIRST TWO ROWS: SHIELDED VERSION, the shield is always present:\nRow 1: (1) ready stance, shield ahead toward right and saber low; (2) walking wide contact step with shield ahead; (3) walking compact passing step with shield ahead; (4) forceful saber slash forward around the shield, wide lunging pose.\nRow 2: (5) blocking, crouching tightly behind the raised shield and grimacing; (6) recoiling from impact but still holding shield; (7) CARRY A, saber sheathed and shield SLUNG ON HIS BACK, both EMPTY palms raised above shoulder height to support a separate captive, wide walking step, no captive illustrated; (8) CARRY B, identical raised palm/shoulder level, shield still visibly slung on his back, compact passing step, no captive.\n\nLAST TWO ROWS: THE SAME SOLDIER WITHOUT ANY SHIELD, same armor and clothes. No shield anywhere on his body or nearby:\nRow 3: (9) ready with saber and free left fist; (10) walking wide contact step with saber; (11) walking compact passing step; (12) forceful saber slash, exaggerated lunge.\nRow 4: (13) reaching forward with both empty hands to grab, saber sheathed; (14) CARRY A with both empty palms raised above shoulders, saber sheathed, wide walking step, no captive; (15) CARRY B with same hand height and compact passing step; (16) comical defeated soldier lying on his side at bottom of cell, eyes shut, saber beside him, no shield.\n\nAll sixteen are the SAME character at the SAME scale. The distinction between first 8 shielded drawings and last 8 shieldless drawings is essential. Facial animation and action are big and comic, matching the supplied game illustration.",
+      "quality": 82
+    },
+    {
+      "id": "H01",
+      "name": "关羽",
+      "slug": "guanyu",
+      "kind": "hero",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "skill-windup",
+        "skill",
+        "proud",
+        "fall",
+        "dead",
+        "cheer"
+      ],
+      "frameSize": 256,
+      "source": "art/source/characters/H01/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-ec5d477e-c86c-450f-8f2f-50463bc4c8a4.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 3 rows, TWELVE complete full-body poses, landscape 4:3.\nCharacter: GUAN YU, exactly the Guan Yu in the supplied reference: long angular reddish face, fierce slanted brows, very long heavy BLACK beard, emerald green head wrap and green robe with restrained gold edges, dark boots, broad curved silver GUANDAO blade on a brown shaft with gold dragon socket. Two hands naturally grip the same continuous shaft. Preserve this identity and palette. The blade, shaft, flowing beard and robe all fit comfortably inside each cell. Large head and short powerful body as in the reference, no realism.\n\nRow 1: (1) ready wide grounded stance, guandao held across body pointing right; (2) forward long step, robe tails sweep back; (3) compact passing step with knees lifting, different silhouette from cell 2; (4) dramatic windup with torso twisted left and guandao lifted back over shoulder.\nRow 2: (5) tremendous sweeping downward/right guandao strike, low wide lunge and fierce open mouth, small green crescent swipe following blade; (6) hit recoil, feet planted, guandao held defensively, eyes squeezed; (7) SPECIAL WINDUP, planted crouch gripping guandao tightly with blade raised, brows fierce; (8) SPECIAL STRIKE, exaggerated broad horizontal sweeping cut toward right, beard and robe swing with body, small green arc accent.\nRow 3: (9) proud satisfied upright pose stroking long beard with left hand while right hand holds upright guandao; (10) off-balance fall/recoil pose, guandao still held, full figure; (11) comic defeated pose seated/slumped low on the ground, head bowed, guandao lying alongside, complete figure and blade; (12) victory pose lifting guandao high, confident grin and beard flowing.\n\nMake both anticipation and release clearly different complete body drawings. Only ONE Guan Yu per cell, one guandao per pose, no detached body parts. Weapon and robe effects stay inside the cell and do not obscure his face.",
+      "reserved": false,
+      "quality": 82
+    },
+    {
+      "id": "H02",
+      "name": "张飞",
+      "slug": "zhangfei",
+      "kind": "hero",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "skill-windup",
+        "skill",
+        "proud",
+        "fall",
+        "dead",
+        "cheer"
+      ],
+      "frameSize": 256,
+      "source": "art/source/characters/H02/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-6b93b572-e369-4d8e-88fb-c39f9b2bafac.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 3 rows, TWELVE complete full-body poses, landscape 4:3.\nCharacter: ZHANG FEI from reference 2, exact fierce comic identity: red cloth headband, wild black hair, huge thick BLACK beard, explosive wide eyes and giant shouting mouth, exposed muscular upper arms, dark bronze wrist guards, red sleeveless clothes and red sash, dark trousers and brown boots, long dark shaft with silver wavy SERPENT SPEAR blade. Stocky squat powerful body, no ornate new armor.\n\nRow 1: (1) original reference's fierce ready stance with spear across waist, free fist high and huge mouth yelling; (2) broad running contact step with spear supported in both hands; (3) different compact passing step with raised knees; (4) huge spear thrust windup, torso pulled back, knees bent, spear point aimed right.\nRow 2: (5) explosive forward/right spear thrust with straight rear leg and wide lunge, furious face; (6) hit recoil with shocked comic grimace, spear held defensively; (7) SPECIAL WINDUP, deep crouch and inhaling with puffed chest before a mighty roar, spear braced against shoulder; (8) SPECIAL ROAR, wide planted feet, head thrust forward, mouth enormously open, one fist raised and spear in other hand, two small comic yellow impact accent lines.\nRow 3: (9) satisfied cocky grin, spear planted upright and free hand on hip; (10) flailing backward fall, legs up, still holding spear; (11) defeated flat/seated slump at bottom of cell, comically dizzy face, spear alongside whole body; (12) victory pose, laughing uproariously and raising spear.\n\nExactly two arms and two hands naturally connected to body. One continuous spear only per frame, weapon fully inside cell. Whole figure and beard/cloth movement, no separated parts.",
+      "reserved": false,
+      "quality": 82
+    },
+    {
+      "id": "H03",
+      "name": "诸葛亮",
+      "slug": "zhugeliang",
+      "kind": "hero",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "skill-windup",
+        "skill",
+        "proud",
+        "fall",
+        "dead",
+        "cheer"
+      ],
+      "frameSize": 256,
+      "source": "art/source/characters/H03/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-4727ec6b-58a3-48b0-9b0b-d93f6cc7fdef.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 3 rows, TWELVE complete full-body poses, landscape 4:3.\nCharacter: ZHUGE LIANG from reference 2. Preserve his exact tall WHITE layered scholar headdress with BLUE band and small gold ornament, angular adult face, narrow focused eyes, black mustache and small pointed goatee, long black hair, WHITE robes with BLUE trim and blue skirt panels, restrained gold belt and dark boots. He holds a WHITE FEATHER FAN with blue feather bases and gold/dark handle. No sword, no staff, no new armor or jewelry.\n\nRow 1: (1) calm ready stance, feather fan held in front, knowing raised eyebrow; (2) dignified long walking step toward right, robe tails flowing; (3) visibly different compact passing step, hem and fan repositioned; (4) preparation for a forceful fan sweep, torso twisted back and fan raised near shoulder.\nRow 2: (5) forceful forward/right feather fan sweep, wide step and assertive expression, a small pale blue wind crescent near fan; (6) surprised hit recoil, robe pulled back and fan close to chest; (7) SPECIAL WINDUP, crouched leaning forward, eyes narrowed, fan drawn back; (8) SPECIAL CAST, full arm extending feather fan toward right, commanding expression and very large sweeping robe motion, only a small blue wind curl near fan.\nRow 3: (9) composed thoughtful stance, fan at chest and left hand stroking small beard, faint satisfied smile; (10) off-balance backward fall with startled wide eyes, fan kept in hand; (11) comic defeated seated/slumped pose along cell bottom, drooping headdress and fan lying beside him, whole body; (12) triumphant confident smile, gently waving fan at shoulder height, robe and hair flowing.\n\nWhole connected bodies, same scale and costume in every pose, two anatomically connected arms and hands. The small fan belongs to his hand and is never floating. Keep wind effects restrained so the white-blue figure remains readable.",
+      "reserved": false,
+      "quality": 82
+    },
+    {
+      "id": "E03",
+      "name": "破械工兵",
+      "slug": "cao-engineer",
+      "kind": "enemy",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E03/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-82b96dc5-97f3-4e2e-a425-8769a6746ba0.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nGRID: 4 columns x 3 rows, TWELVE complete poses.\nCharacter: CAO SABOTAGE ENGINEER from reference 2: angry bearded comic face, messy black hair under brown leather cap with gold band, dark gray rolled sleeves, red cloth accents, brown work apron with bronze buckles, tool backpack, beige trousers and brown boots. Big rectangular iron dismantling HAMMER on a wooden shaft held in two hands. Match the approved first reference's bold comic style, simple heavy painted shadows.\n\nRow 1: (1) planted ready stance gripping hammer across waist; (2) wide marching contact step with hammer; (3) compact passing step, knees close and body lifted; (4) enormous overhead hammer windup, torso leaning back, face straining.\nRow 2: (5) hammer slamming down and toward right at an invisible mechanism, deep lunge, hunched shoulders, furious mouth; (6) comic hit recoil, eyes squeezed; (7) reaching forward with BOTH empty hands to grab, hammer strapped across backpack; (8) CARRY A, both empty palms raised above shoulder height to support a separate captive, hammer strapped behind, wide walking step, no captive.\nRow 3: (9) CARRY B, same raised palm and shoulder height, compact passing step, hammer strapped behind; (10) flailing backward fall; (11) defeated body sprawled low along cell bottom, dizzy face, hammer beside him; (12) proudly checking his hammer with a sneering grin, planted pose.\nOnly one connected whole engineer per cell, no machinery or other people. Exactly two hands; two-handed hammer grip physically continuous and sensible. All poses keep the same clothes and backpack.",
+      "quality": 82
+    },
+    {
+      "id": "E04",
+      "name": "飞檐斥候",
+      "slug": "cao-scout",
+      "kind": "scout",
+      "grid": [
+        4,
+        4
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt",
+        "climb-a",
+        "climb-b",
+        "drop",
+        "land"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E04/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-1da8479c-971c-49ca-9929-ebc4f6bb9ea2.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nCHARACTER: Cao army rooftop scout. Follow second reference identity: wiry adult soldier, black ponytail, red headband, dark charcoal light armour and cloth, brown belt, short dagger. Render in approved comic style, large expressive eyes and brow.\nExact 4 columns x 4 rows, SIXTEEN full-body poses.\nRow1: idle dagger ready; run right near leg forward; opposite run far leg forward; dagger attack windup.\nRow2: dagger slash to right; exaggerated recoiling hit; both arms reaching right to grab someone (no target drawn, dagger sheathed); walking right with both empty hands supporting an invisible load above shoulder, dagger sheathed.\nRow3: opposite-step shoulder-carry with same empty hands above shoulder; knocked backwards tumbling; defeated on back feet right; cocky sneaky crouching taunt.\nRow4: hanging by both hands raised straight overhead with knees curled, front arm higher (no beam or rope); opposite hanging climbing pose other arm higher (no beam or rope); dropping feet first knees tucked arms spread; landing in deep crouch one hand on ground.\nNo weapons in climbing or carry hands. No extra characters or scenery. Make all 16 silhouettes fully separated.",
+      "quality": 82
+    },
+    {
+      "id": "E05",
+      "name": "曹军弓兵",
+      "slug": "cao-archer",
+      "kind": "archer",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E05/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-e1c5fff5-bf17-4fab-ab36-61b271659c87.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nCHARACTER: Cao army archer, exact second reference identity. Steel helmet with gold trim and red plume, charcoal armour, dusty grey sleeves and trousers, red scarf and sash, brown boots, bow and back quiver, adult fierce mustached face.\nExactly 4 columns x 3 rows, TWELVE complete poses:\nRow1: ready stance holding relaxed bow; run near leg forward bow held upright; opposite run far leg forward; aiming bow to right at FULL DRAW with arrow nocked, left hand forward grips bow and right hand at cheek pulls bowstring.\nRow2: RELEASE ARROW: same correct left hand holds bow, right hand recoils backward beside cheek, bow string straight, no flying detached arrow; large comic hit recoil; both empty hands reach right for capture, bow SLUNG ON BACK; carrying invisible horizontal load overhead with both open palms, bow on back.\nRow3: opposite carrying step palms overhead; knocked back tumbling; collapsed defeated full body; boastful relaxed archer.\nKeep the bow, hands and string physically coherent. Quiver remains at back. Carry poses have two empty hands overhead, no victim. Entire silhouette and bow contained inside each cell, widely separated.",
+      "quality": 82
+    },
+    {
+      "id": "E06",
+      "name": "虎卫重兵",
+      "slug": "cao-tiger-guard",
+      "kind": "enemy",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E06/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-9c000d97-9c5b-40e7-a518-1a9e163db06a.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nCHARACTER: Cao army heavy tiger guard. Second reference fixes outfit: hulking broad adult black-bearded soldier, riveted dark iron heavy armour with small tiger-face shoulder details, red helmet plume, dark red tunic, heavy boots and huge square iron hammer on long wooden shaft. Adapt reference into the approved caricature comic style, large black brows, fierce expressive face, clearly larger and broader than regular soldiers, simpler readable armour.\n4 columns x 3 rows, TWELVE poses.\nRow1: planted ready stance two hands naturally gripping hammer shaft; heavy march right near leg forward; opposite heavy march far leg forward; hammer windup raised behind shoulder.\nRow2: full powerful hammer strike forward and down; comic staggering hit; reaches forward with two EMPTY hands to grab, hammer secured on back; march with two empty palms overhead supporting invisible load, hammer on back.\nRow3: opposite carry step palms overhead; knocked back stumbling; defeated on back with whole hammer beside attached hand; boastful intimidating laughing stance holding hammer down.\nNo target, no floor impact effects, no ground shadow. Natural two-hand weapon grip, fingers wrap the wooden shaft. Keep hammer and full figure entirely inside own cell.",
+      "quality": 82
+    },
+    {
+      "id": "E07",
+      "name": "曹洪",
+      "slug": "cao-hong",
+      "kind": "enemy",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "grab",
+        "carry-a",
+        "carry-b",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/E07/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-d8968911-cbbd-4d6e-91e9-cea3d5389a7b.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nCHARACTER: Cao Hong, enemy officer. Second reference identity: broad stout swaggering adult man with fierce raised black moustache, elaborate black-and-gold armour, gold-trim helmet with red plume, red underskirt, green round belt gemstone, money pouch with gold coins/red tassels at left hip, curved short dao sword with decorated gold hilt. Keep bold expressive caricature, simpler readable armour matching first approved game image.\n4 columns x 3 rows, TWELVE poses:\nRow1: smug ready sword stance; march near leg forward; opposite march far leg forward; sword windup overhead.\nRow2: lunging sword slash to right; exaggerated startled hit recoil; reaching forward with both empty hands, sword sheathed; marching with two palms overhead supporting unseen captive, sword sheathed.\nRow3: opposite carrying step palms overhead; knocked back tumbling shocked; defeated sprawled on back; laughing boastful pose one hand resting on coin pouch.\nAll poses same identity. NO other people. Equipment and clothing are painted in complete connected figures. Whole blade within cell.",
+      "quality": 82
+    },
+    {
+      "id": "S01",
+      "name": "蜀军守卫",
+      "slug": "shu-guard",
+      "kind": "guard",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "windup",
+        "strike",
+        "hit",
+        "block",
+        "shove",
+        "brace",
+        "fall",
+        "dead",
+        "cheer"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/S01/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-97aee502-96c8-4b43-8ccd-49e846ec284e.png",
+      "prompt": "TRANSPARENT BACKGROUND PNG RGBA game sprite sheet. Use case: isolated transparent game assets. This must have actual transparent pixels surrounding EVERY character, like the supplied cutout reference. No backdrop, no gradients, no scene, no shadows.\nCreate twelve full-body drawings of this SAME green Shu guard from the reference: green plume helmet, adult moustached expressive face, olive-green cloth and steel armour, dao in right hand, wood round shield in left hand. Thick black comic outlines, earthy painted colors, exaggerated adult caricature in Chinese Three Kingdoms mobile game style.\nExact 4 columns x 3 rows, generous empty transparent gutters, whole figures same scale.\nrow1: ready stance; running near leg forward; running far leg forward; raising sword to attack.\nrow2: sword slash; hit recoil; bracing shield forward; pushing forward with shield.\nrow3: crouching behind shield; falling backwards; lying defeated; raising sword celebrating.\nEach is one finished complete connected character, never separate limbs. Correct hands physically gripping equipment. All face right and fit in their cells completely including blade and shield. Do not copy any background. Transparent alpha everywhere except the twelve isolated figures.",
+      "quality": 82
+    },
+    {
+      "id": "S02",
+      "name": "蜀军军医",
+      "slug": "shu-medic",
+      "kind": "medic",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "idle",
+        "walk-a",
+        "walk-b",
+        "heal-windup",
+        "heal",
+        "hit",
+        "repair",
+        "self-heal",
+        "cheer",
+        "fall",
+        "dead",
+        "taunt"
+      ],
+      "frameSize": 192,
+      "source": "art/source/characters/S02/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-dfde63ca-137f-48f3-84cf-dee6fe843202.png",
+      "prompt": "Use case: identity-preserve / full-body 2D cartoon game animation.\nThe first reference is the user's APPROVED Three Kingdoms comic game image. Match that visual language: thick confident rough black ink contours, angular ADULT caricature faces, emphatic brows and eyes, hugely exaggerated emotions and large readable poses, compact sturdy bodies, muted earthy hand-painted fabric and weathered metal. Preserve the reference identity and clothing of the specified character. Full finished connected character drawings with equipment in each pose, NO separate head/arms/hands/legs, NO anatomical cutout parts. Do not turn the character into a generic round baby chibi. Every pose must read at small mobile-game size.\nCreate ONE RGBA transparent character sprite sheet, exact GRID layout specified below. Same character scale, face, costume colors, head size and perspective across the whole sheet. Entire bodies and weapons fit inside their own equal cells, with 8 percent padding on ALL sides and large clear gutters. No touching neighboring cells. Foot baseline 90 percent down each cell for upright/grounded poses. Lowered, crouched and fallen poses stay lower and shorter without being enlarged. All face screen RIGHT in side/three-quarter view. True transparent alpha outside figures, no floor, no ground shadow, no background color, no grid lines, no text, no labels.\nHands are drawn as part of the connected body: correct left/right shoulders, palm/back/thumb/finger orientation consistent with pose, fingers naturally wrap weapon grips. Strong deliberate silhouettes and exaggerated action; do not reuse one identical pose for different actions.\nTRANSPARENT PNG character cutouts, no backdrop.\nCHARACTER: Shu army field medic, second reference. Friendly adult small moustache and goatee, expressive big eyes, black topknot with green cloth headband, olive green robe with ivory cuffs, patched dusty trousers, wrapped lower legs and brown cloth shoes, wood medicine backpack and belt tool pouch. Holds small gold-brown medicine bottle. No armour. Keep approved exaggerated comic game style.\n4 columns x 3 rows TWELVE complete poses:\nRow1: friendly ready holding bottle; running right near leg forward; opposite run far leg forward; healing preparation uncorks bottle using both hands.\nRow2: extending medicine bottle forward to right offering remedy (no patient drawn); startled hit recoil; kneeling repair pose with a small wooden mallet in one hand and other hand extended (no machine drawn); drinking bottle for self-heal.\nRow3: happy thumbs up, bottle held in other hand; falling backwards bottle held tight; lying exhausted flat with backpack and bottle; waving friendly greeting.\nCorrect coherent hands grasp objects, complete connected figures, no extra people, no glowing effects, keep 12 separated. Transparent alpha background.",
+      "quality": 82
+    },
+    {
+      "id": "B05-dancer",
+      "name": "营帐舞女",
+      "slug": "camp-dancer",
+      "kind": "dancer",
+      "grid": [
+        4,
+        2
+      ],
+      "cells": [
+        "dance-0",
+        "dance-1",
+        "dance-2",
+        "dance-3",
+        "dance-4",
+        "dance-5",
+        "dance-6",
+        "dance-7"
+      ],
+      "frameSize": 256,
+      "source": "art/source/characters/B05-dancer/poses.png",
+      "generated": "C:\\Users\\84720\\.codex\\generated_images\\01a0af3b-a3f1-70e1-918e-362af418da28\\exec-fd3040db-613f-4254-865d-59fa6748d054.png",
+      "prompt": "Use case: identity-preserve transparent game sprite sheet. Make eight full-body animation drawings of the SAME adult female dancer from this reference. Preserve pink and ivory long sleeve traditional dress, green waist sash and trailing ribbons, gold hair ornament, black piled hair, expressive smiling adult face, brown shoes. Exaggerated flowing sleeve silhouettes and playful lively face, thick black ink contours and earthy painted cloth as a Chinese Three Kingdoms comic game.\nGenuine transparent RGBA background exactly like reference. No background, no floor or shadows. Exact four columns by two rows, equal cells and same figure/head scale, all artwork including long sleeves contained in its own cell with generous clear gaps. Feet on same baseline; whole connected character drawings only.\nRow1: neutral dance stance both hands low; raise left sleeve overhead and right sleeve outward; both sleeves arc overhead; both sleeves sweep to the right with a step.\nRow2: turning three-quarter back with face looking over shoulder, ribbons flying; finish turn facing front/right and sleeves open; graceful low dip with sleeves sweeping left; rise back into opening stance with warm smile.\nNo text, no stage, no extra characters, no detached arms. Correct natural hands connected to correct sleeves, palm/thumb orientation consistent with pose. Transparent pixels between all isolated figures.",
+      "quality": 82
+    }
+  ]
+}

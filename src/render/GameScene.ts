@@ -1,16 +1,19 @@
 import Phaser from 'phaser';
-import { CARD, LEVEL, RULES, VIEW } from '../config';
+import { CARD, HERO_SKILLS, LEVEL, RULES, VIEW } from '../config';
 import { Battle } from '../game/Battle';
 import { lastColumn, position } from '../game/map';
-import type { Action, Command } from '../game/types';
-import { AudioPlayer } from '../platform';
+import type { Action, Command, Effect } from '../game/types';
+import { AudioPlayer, BGM_BYTES } from '../platform';
+import { stageCoordinates, stagePoint } from '../viewport';
 import { UI, type UIController } from '../ui';
-import { ActorView, installFrames, installPreviews, preloadArt, manifest } from './art';
+import { ActorView, installFrames, installPreviews, preloadArt, preloadInterfaceImages, manifest } from './art';
 import { LoadingScreen } from '../loading';
 import { Opening } from './Opening';
 import { ceilingY, floorPoint, routePoint, worldPoint } from './layout';
+import { WorldLabels } from './WorldLabels';
+import characterMetrics from './character-metrics.json';
 
-interface FieldGesture { pointerId:number;startX:number;startY:number;moved:boolean;card?:string;unit?:number }
+interface FieldGesture { pointerId:number;startX:number;startY:number;lastX:number;lastY:number;x:number;y:number;moved:boolean;fromDeck:boolean;coordinates:ReturnType<typeof stageCoordinates>;card?:string;unit?:number;mode:'pending'|'pan'|'card-scroll'|'deploy'|'rally';holdTimer?:number }
 
 export class GameScene extends Phaser.Scene implements UIController {
   battle=new Battle();
@@ -24,91 +27,126 @@ export class GameScene extends Phaser.Scene implements UIController {
   private units=new Map<number,ActorView>();
   private enemies=new Map<number,ActorView>();
   private lord!:ActorView;
+  private campDancers:ActorView[]=[];
+  private campDancersDismissed=false;
+  private campTime=0;
   private lordState='';
   private lordStateSince=0;
   private graphics!:Phaser.GameObjects.Graphics;
   private marks!:Phaser.GameObjects.Graphics;
-  private labels=new Map<string,Phaser.GameObjects.Text>();
   private accumulator=0;
   private uiTimer=0;
   private heard=0;
-  private floors=new Map<string,Phaser.GameObjects.Image>();
-  private floorEdges=new Map<string,Phaser.GameObjects.Image[]>();
+  private worldLabels!:WorldLabels;
+  private apertures!:Phaser.GameObjects.Graphics;
   private scenery=new Map<string,ActorView>();
   private fx=new Map<string,ActorView>();
   private sprites=new Map<string,Phaser.GameObjects.Image>();
+  private bagViews=new Map<number,{root:Phaser.GameObjects.Container;amount:Phaser.GameObjects.Text}>();
   private projectileOffsets=new Map<number,{x:number;y:number}>();
   private retiring=new Map<number,{view:ActorView;since:number;action:string}>();
   private point?:{floor:number;x:number};
   private opening?:Opening;
+  private arrival?:{elapsed:number;fromX:number;fromY:number;toX:number;toY:number};
   constructor(){super('game');}
 
   preload(){
-    LoadingScreen.assets(manifest.files);
+    LoadingScreen.assets({...Object.fromEntries(Object.entries(manifest.files).filter(([,file])=>file.preload!==false)),bgm:{bytes:BGM_BYTES}});
     this.load.on('fileprogress',(file:Phaser.Loader.File,value:number)=>LoadingScreen.file(file.key,value));
     this.load.on('filecomplete',(key:string)=>LoadingScreen.file(key,1));
     this.load.on('loaderror',()=>LoadingScreen.fail('资源加载失败，请重试'));
-    preloadArt(this);
+    preloadArt(this,manifest.loadingGroups.intro);
   }
   create(){
     if(LoadingScreen.hasFailed)return;
-    try{this.createWorld();}catch(error){LoadingScreen.fail('画面载入失败，请重试');console.error(error);}
+    try{
+      installFrames(this);
+      document.getElementById('ui')!.style.visibility='hidden';
+      this.opening=new Opening(this,()=>{this.opening=undefined;this.resetCamera();document.getElementById('ui')!.style.visibility='';this.ui.update();});
+      this.bindLifecycle();
+      const interfaceReady=Promise.all([
+        preloadInterfaceImages(),
+        document.fonts.load('32px "Tower Display"'),
+        this.audioPlayer.prepare(value=>LoadingScreen.file('bgm',value)),
+      ]).catch(error=>{LoadingScreen.fail('资源加载失败，请重试');console.error(error);});
+      // Animate the camp while the battle atlases download in the background.
+      this.load.once('complete',async()=>{
+        await interfaceReady;
+        if(LoadingScreen.hasFailed)return;
+        try{this.createWorld();this.opening!.setReady();}
+        catch(error){LoadingScreen.fail('画面载入失败，请重试');console.error(error);}
+      });
+      preloadArt(this);WorldLabels.preload(this);this.load.start();
+    }catch(error){LoadingScreen.fail('画面载入失败，请重试');console.error(error);}
   }
   private createWorld(){
     LoadingScreen.progress(.94,'准备画面');
     installFrames(this);
     installPreviews(this);
     LoadingScreen.progress(.98,'准备画面');
-    this.add.image(0,VIEW.backgroundY,VIEW.background).setOrigin(0,0).setDisplaySize(VIEW.width,VIEW.height);
-    this.drawSupports();
+    this.add.image(0,VIEW.backgroundY,'B01').setOrigin(0,0).setDisplaySize(VIEW.width,VIEW.height);
+    this.apertures=this.add.graphics().setDepth(80);
+    this.worldLabels=new WorldLabels(this);
     this.graphics=this.add.graphics().setDepth(480);
     this.marks=this.add.graphics().setDepth(500);
     this.lord=new ActorView(this,'L01',VIEW.lordHeight);
-    this.scenery.set('chair',new ActorView(this,'B05-chair',VIEW.lordHeight));
+    this.campDancers=VIEW.campDancers.offsets.map(()=>new ActorView(this,'B05-dancer',VIEW.campDancers.height));
     this.scenery.set('gate',new ActorView(this,'B03-gate',VIEW.gateHeight));
     this.scenery.set('barrier',new ActorView(this,'B03-barrier',VIEW.gateHeight));
-    this.scenery.set('camp-flag',new ActorView(this,'B-flag-green',VIEW.flagHeight));
-    this.scenery.set('exit-flag',new ActorView(this,'B-flag-red',VIEW.flagHeight));
     this.ui=new UI(this);
     this.bindControls();
-    const visibility=()=>{if(this.opening)this.opening.paused=document.hidden;if(document.hidden){this.cancelDrag();if(this.battle.active){this.battle.paused=true;this.ui.update();}}};
-    const blur=()=>{this.cancelDrag();if(this.opening)this.opening.paused=true;if(this.battle.active){this.battle.paused=true;this.ui.update();}};
-    const focus=()=>{if(this.opening)this.opening.paused=document.hidden;};
-    const resize=()=>this.scale.updateBounds();
-    document.addEventListener('visibilitychange',visibility);window.addEventListener('blur',blur);window.addEventListener('focus',focus);window.addEventListener('stage-resize',resize);
-    document.addEventListener('pointerdown',()=>this.audioPlayer.unlock(),{once:true});
-    this.events.once('shutdown',()=>{document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',blur);window.removeEventListener('focus',focus);window.removeEventListener('stage-resize',resize);this.opening?.destroy();});
     this.paint();
-    document.getElementById('ui')!.style.visibility='hidden';
-    this.opening=new Opening(this,()=>{this.opening=undefined;document.getElementById('ui')!.style.visibility='';this.ui.update();});
-    LoadingScreen.finish();
+  }
+  private bindLifecycle(){
+    const visibility=()=>{if(this.opening)this.opening.paused=document.hidden;if(document.hidden){this.audioPlayer.setActive(false);this.cancelDrag();if(this.battle.active){this.battle.paused=true;this.ui.update();}}};
+    const blur=()=>{this.audioPlayer.setActive(false);this.cancelDrag();if(this.opening)this.opening.paused=true;if(this.battle.active){this.battle.paused=true;this.ui.update();}};
+    const focus=()=>{if(this.opening)this.opening.paused=document.hidden;};
+    const resize=()=>{this.cancelDrag();this.scale.updateBounds();};
+    document.addEventListener('visibilitychange',visibility);window.addEventListener('blur',blur);window.addEventListener('focus',focus);window.addEventListener('stage-resize',resize);
+    const recoverAudio=()=>this.audioPlayer.unlock();
+    document.addEventListener('touchend',recoverAudio,{capture:true,passive:true});
+    document.addEventListener('click',recoverAudio,{capture:true});
+    document.addEventListener('WeixinJSBridgeReady',recoverAudio);
+    this.events.once('shutdown',()=>{
+      document.removeEventListener('visibilitychange',visibility);window.removeEventListener('blur',blur);window.removeEventListener('focus',focus);window.removeEventListener('stage-resize',resize);
+      document.removeEventListener('touchend',recoverAudio,true);document.removeEventListener('click',recoverAudio,true);document.removeEventListener('WeixinJSBridgeReady',recoverAudio);
+      this.audioPlayer.destroy();this.opening?.destroy();
+    });
   }
 
-  start(deck:string[]){this.battle.start(deck);this.ui.update();}
+  start(deck:string[]){if(this.battle.start(deck)){this.resetCamera();this.beginArrival();}this.ui.update();}
   restart(select:boolean){
     this.cancelDrag();
     const deck=[...this.battle.deck];this.battle=new Battle();this.battle.deck=deck;
     this.selectedCard=undefined;this.selectedUnit=undefined;this.dragUnit=undefined;this.accumulator=0;this.heard=0;
+    this.campDancersDismissed=false;this.campTime=0;
     for(const view of this.units.values())view.destroy();for(const view of this.enemies.values())view.destroy();
-    this.units.clear();this.enemies.clear();this.labels.forEach(t=>t.destroy());this.labels.clear();
+    this.units.clear();this.enemies.clear();
     for(const item of this.retiring.values())item.view.destroy();this.retiring.clear();
     for(const view of this.fx.values())view.destroy();this.fx.clear();for(const image of this.sprites.values())image.destroy();this.sprites.clear();
     this.projectileOffsets.clear();
-    if(!select)this.battle.start(deck);this.ui.reset();
+    this.resetCamera();if(!select&&this.battle.start(deck))this.beginArrival();this.ui.reset();
   }
   toggleSound(){this.audioPlayer.enabled=!this.audioPlayer.enabled;this.audioPlayer.unlock();}
   action(type:string,uid?:number){
     if(type==='pause'){this.cancelDrag();if(this.battle.active)this.battle.paused=true;}
     else if(type==='deselect'){this.cancelDrag();this.selectedUnit=undefined;}
     else if(type==='select'){this.cancelDrag();this.selectedUnit=uid;}
-    else if(type==='shield'||type==='recall')this.battle.command({type});
+    else if(type==='shield')this.battle.command({type});
     else if(uid!==undefined&&['activate','sell','turn'].includes(type)){this.battle.command({type,uid} as Command);if(type==='sell')this.selectedUnit=undefined;}
     this.ui.update();
   }
   update(_time:number,delta:number){
-    if(!this.ui)return;
+    this.audioPlayer.setActive(!document.hidden&&(this.opening?!this.opening.paused:!this.battle.paused&&(this.battle.active||this.battle.phase==='select')));
     if(this.opening){this.opening.update(Math.min(delta/1000,RULES.maxFrameSeconds));return;}
+    if(!this.ui)return;
+    if(!this.battle.paused&&!document.hidden&&(this.battle.active||this.battle.phase==='select'))this.campTime+=Math.min(delta/1000,RULES.maxFrameSeconds);
+    if(this.arrival){
+      if(!this.battle.paused&&!document.hidden)this.updateArrival(Math.min(delta/1000,RULES.maxFrameSeconds));
+      this.paint();this.ui.update();return;
+    }
     if(this.gesture&&(!this.battle.active||this.battle.paused||(this.dragUnit!==undefined&&!this.battle.units.some(u=>u.uid===this.dragUnit&&u.hp>0))))this.cancelDrag();
+    this.scrollDrag(Math.min(delta/1000,RULES.maxFrameSeconds));
     this.accumulator+=Math.min(delta/1000,RULES.maxFrameSeconds);
     while(this.accumulator>=RULES.step){this.battle.step(RULES.step);this.accumulator-=RULES.step;}
     this.paint();this.uiTimer+=delta/1000;
@@ -129,77 +167,152 @@ export class GameScene extends Phaser.Scene implements UIController {
   }
   private insideField(x:number,y:number){
     const halfCell=(VIEW.x1-VIEW.x0)/lastColumn/2;
-    return x>=VIEW.x0-halfCell&&x<=VIEW.x1+halfCell&&y>=VIEW.input.fieldTop&&y<=VIEW.input.fieldBottom;
+    return x>=VIEW.x0-halfCell&&x<=VIEW.x1+halfCell&&y>=0&&y<=VIEW.floorY[0]+32;
   }
   private pointerPoint(event:PointerEvent){
-    const rect=this.inputStage!.getBoundingClientRect();
-    return {x:(event.clientX-rect.left)/rect.width*VIEW.width,y:(event.clientY-rect.top)/rect.height*VIEW.height};
+    if(this.gesture)return this.gesture.coordinates(event.clientX,event.clientY);
+    return stagePoint(this.inputStage!,event.clientX,event.clientY);
+  }
+  private resetCamera(){
+    this.arrival=undefined;this.accumulator=0;
+    const top=VIEW.input.fieldTop,height=VIEW.input.fieldBottom-top;
+    this.cameras.main.setViewport(0,top,VIEW.width,height).setZoom(VIEW.camera.zoom)
+      .setBounds(0,0,VIEW.width,VIEW.floorY[0]+60).centerOn(VIEW.x0,VIEW.floorY[0]).preRender();
+  }
+  private beginArrival(){
+    const camera=this.cameras.main,toX=camera.scrollX,toY=camera.scrollY;
+    const lord=this.screen(LEVEL.lord.floor,LEVEL.lord.x);
+    camera.centerOn(lord.x,lord.y-VIEW.lordHeight/2).preRender();
+    this.arrival={elapsed:0,fromX:camera.scrollX,fromY:camera.scrollY,toX,toY};
+  }
+  private updateArrival(seconds:number){
+    const arrival=this.arrival;if(!arrival)return;
+    arrival.elapsed+=seconds;
+    if(arrival.elapsed<=VIEW.camera.arrivalHold)return;
+    const progress=Math.min(1,(arrival.elapsed-VIEW.camera.arrivalHold)/VIEW.camera.arrivalPan);
+    const eased=progress*progress*(3-2*progress);
+    this.cameras.main.setScroll(Phaser.Math.Linear(arrival.fromX,arrival.toX,eased),Phaser.Math.Linear(arrival.fromY,arrival.toY,eased)).preRender();
+    if(progress===1)this.arrival=undefined;
+  }
+  private inCamera(x:number,y:number){
+    const camera=this.cameras.main;
+    return x>=camera.x&&x<=camera.x+camera.width&&y>=camera.y&&y<=camera.y+camera.height;
+  }
+  private panCamera(dx:number,dy:number){
+    if(!dx&&!dy)return;
+    const camera=this.cameras.main;
+    camera.setScroll(camera.clampX(camera.scrollX+dx/camera.zoom),camera.clampY(camera.scrollY+dy/camera.zoom));
+    // Phaser 4 includes scroll in its picking matrix; refresh it before drag hit tests.
+    camera.preRender();
+  }
+  private scrollDrag(seconds:number){
+    const drag=this.gesture;
+    if(!drag?.moved||!['deploy','rally'].includes(drag.mode)||!this.inCamera(drag.x,drag.y))return;
+    const camera=this.cameras.main,edge=VIEW.camera.edgeSize;
+    const speed=(value:number,min:number,max:number)=>value<min+edge?-(1-(value-min)/edge):value>max-edge?1-(max-value)/edge:0;
+    this.panCamera(speed(drag.x,camera.x,camera.x+camera.width)*VIEW.camera.edgeSpeed*seconds,
+      speed(drag.y,camera.y,camera.y+camera.height)*VIEW.camera.edgeSpeed*seconds);
+    this.previewDrag(drag.x,drag.y);
   }
   private bagsAt(x:number,y:number){
     return this.battle.bags.filter(bag=>{
-      const bounds=this.sprites.get('bag-'+bag.uid)?.getBounds(),pad=VIEW.input.bagPadding;
+      const bounds=this.bagViews.get(bag.uid)?.root.getBounds(),pad=VIEW.input.bagPadding;
       return bounds&&x>=bounds.left-pad&&x<=bounds.right+pad&&y>=bounds.top-pad&&y<=bounds.bottom+pad;
     });
   }
   private bindControls(){
     const stage=this.inputStage=document.getElementById('stage')!;
+    const beginDrag=(drag:FieldGesture)=>{
+      if(drag.card){drag.mode='deploy';this.selectedCard=drag.card;this.selectedUnit=undefined;}
+      else if(drag.unit!==undefined&&this.battle.units.some(u=>u.uid===drag.unit&&u.hp>0)){
+        drag.mode='rally';this.selectedCard=undefined;this.dragUnit=drag.unit;this.selectedUnit=drag.unit;
+      }else return;
+      this.previewDrag(drag.x,drag.y);this.ui.update();
+    };
     const down=(event:PointerEvent)=>{
       if(this.gesture||!event.isPrimary||event.button!==0||this.opening||!this.battle.active||this.battle.paused)return;
       const target=event.target instanceof Element?event.target:undefined;
+      const fromDeck=!!target?.closest('#deck-bar');
       const card=target?.closest<HTMLElement>('#deck-bar [data-card]')?.dataset.card;
-      if(!card&&target!==this.game.canvas)return;
-      const p=this.pointerPoint(event);
-      if(!card&&!this.insideField(p.x,p.y))return;
-      const unit=!card&&!this.bagsAt(p.x,p.y).length?this.battle.units.find(u=>u.def.mobile&&u.hp>0&&this.units.get(u.uid)?.bounds.contains(p.x,p.y)):undefined;
-      this.gesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,moved:false,card,unit:unit?.uid};
-      this.selectedCard=card;this.dragUnit=unit?.uid;
-      if(card)this.selectedUnit=undefined;else if(unit)this.selectedUnit=unit.uid;
+      if(!fromDeck&&target!==this.game.canvas)return;
+      const coordinates=stageCoordinates(stage),screen=coordinates(event.clientX,event.clientY),p=this.cameras.main.getWorldPoint(screen.x,screen.y);
+      if(!fromDeck&&!this.inCamera(screen.x,screen.y))return;
+      this.arrival=undefined;
+      const unit=!fromDeck&&!this.selectedCard&&!this.bagsAt(p.x,p.y).length?this.battle.units.find(u=>u.def.mobile&&u.hp>0&&this.units.get(u.uid)?.bounds.contains(p.x,p.y)):undefined;
+      const drag:FieldGesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:screen.x,lastY:screen.y,x:screen.x,y:screen.y,moved:false,fromDeck,coordinates,card,unit:unit?.uid,mode:'pending'};
+      this.gesture=drag;
+      if(card||unit)drag.holdTimer=window.setTimeout(()=>{if(this.gesture===drag&&!drag.moved)beginDrag(drag);},VIEW.input.longPressMs);
       stage.setPointerCapture(event.pointerId);event.preventDefault();this.audioPlayer.unlock();
-      this.previewDrag(p.x,p.y);this.ui.update();
     };
     const move=(event:PointerEvent)=>{
       const drag=this.gesture;if(!drag||event.pointerId!==drag.pointerId)return;
-      drag.moved ||= Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)>=VIEW.input.dragThreshold;
-      const p=this.pointerPoint(event);this.previewDrag(p.x,p.y);event.preventDefault();
+      const dx=event.clientX-drag.startX,dy=event.clientY-drag.startY;
+      drag.moved ||= Math.hypot(dx,dy)>=VIEW.input.dragThreshold;
+      const p=this.pointerPoint(event);drag.x=p.x;drag.y=p.y;
+      if(drag.moved&&drag.mode==='pending'){
+        window.clearTimeout(drag.holdTimer);
+        const start=drag.coordinates(drag.startX,drag.startY);
+        if(drag.fromDeck){if(!drag.card||Math.abs(p.x-start.x)>Math.abs(p.y-start.y)*1.15)drag.mode='card-scroll';else beginDrag(drag);}
+        else drag.mode='pan';
+      }
+      // Keep the press position until dragging starts, so the initial motion is preserved.
+      if(drag.mode==='pending')return;
+      if(drag.mode==='pan'){
+        this.panCamera(drag.lastX-p.x,drag.lastY-p.y);
+      }
+      if(drag.mode==='card-scroll')this.ui.scrollCards(drag.lastX-p.x);
+      drag.lastX=p.x;drag.lastY=p.y;
+      if(drag.mode==='deploy'||drag.mode==='rally')this.previewDrag(p.x,p.y);
+      event.preventDefault();
     };
     const up=(event:PointerEvent)=>{
       const drag=this.gesture;if(!drag||event.pointerId!==drag.pointerId)return;
-      drag.moved ||= Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)>=VIEW.input.dragThreshold;
-      const p=this.pointerPoint(event),target=document.elementFromPoint(event.clientX,event.clientY);
-      const inField=this.insideField(p.x,p.y)&&target===this.game.canvas;
+      if(drag.moved||Math.hypot(event.clientX-drag.startX,event.clientY-drag.startY)>=VIEW.input.dragThreshold)move(event);
+      const screen=this.pointerPoint(event),p=this.cameras.main.getWorldPoint(screen.x,screen.y),target=document.elementFromPoint(event.clientX,event.clientY);
+      const inField=this.inCamera(screen.x,screen.y)&&this.insideField(p.x,p.y)&&target===this.game.canvas;
+      this.cancelDrag(false);
       if(this.battle.active&&!this.battle.paused&&inField){
-        if(drag.moved&&drag.card){const slot=this.fieldPoint(p.x,p.y,drag.card);this.battle.command({type:'deploy',card:drag.card,...slot,facing:slot.floor%2?1:-1});}
-        else if(drag.moved&&drag.unit){
+        if(drag.mode==='deploy'&&drag.card){const slot=this.fieldPoint(p.x,p.y,drag.card);this.battle.command({type:'deploy',card:drag.card,...slot,facing:slot.floor%2?1:-1});}
+        else if(drag.mode==='rally'&&drag.moved&&drag.unit!==undefined){
           const slot=this.fieldPoint(p.x,p.y),error=this.battle.rallyError(drag.unit,slot.floor,slot.x);
           if(error)this.battle.tell(error);else this.battle.command({type:'rally',uid:drag.unit,x:slot.x});
-        }else if(!drag.card&&!drag.moved)this.clickField(p.x,p.y);
+        }else if(drag.mode==='pending'&&!drag.card&&!drag.moved)this.clickField(p.x,p.y);
       }
-      this.cancelDrag();this.ui.update();
+      if(drag.mode==='pending'&&drag.card&&!drag.moved){
+        this.selectedCard=this.selectedCard===drag.card?undefined:drag.card;this.selectedUnit=undefined;
+      }
+      if(drag.mode==='deploy'||drag.mode==='rally')this.selectedCard=undefined;
+      this.ui.update();
     };
-    const cancel=(event:PointerEvent)=>{if(event.pointerId===this.gesture?.pointerId)this.cancelDrag();};
+    const cancel=(event:PointerEvent)=>{if(event.pointerId===this.gesture?.pointerId&&(event.type!=='lostpointercapture'||event.target===stage))this.cancelDrag();};
+    const contextMenu=(event:Event)=>event.preventDefault();
+    stage.addEventListener('contextmenu',contextMenu);
     stage.addEventListener('pointerdown',down);stage.addEventListener('pointermove',move);
     stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',cancel);stage.addEventListener('lostpointercapture',cancel);
     this.events.once('shutdown',()=>{
       this.cancelDrag();stage.removeEventListener('pointerdown',down);stage.removeEventListener('pointermove',move);
       stage.removeEventListener('pointerup',up);stage.removeEventListener('pointercancel',cancel);stage.removeEventListener('lostpointercapture',cancel);
+      stage.removeEventListener('contextmenu',contextMenu);
     });
   }
   private previewDrag(x:number,y:number){
     const card=this.selectedCard,unit=this.battle.units.find(u=>u.uid===this.dragUnit),id=card||unit?.def.id;
     if(!id)return;
-    this.point=this.insideField(x,y)?this.fieldPoint(x,y,card):undefined;
+    const world=this.cameras.main.getWorldPoint(x,y);
+    this.point=this.inCamera(x,y)&&this.insideField(world.x,world.y)?this.fieldPoint(world.x,world.y,card):undefined;
     const valid=!!this.point&&!(card?this.battle.placementError(card,this.point.floor,this.point.x):this.battle.rallyError(unit!.uid,this.point.floor,this.point.x));
     this.ui.showDrag(id,x,y,valid);
   }
-  private cancelDrag(){
-    const pointer=this.gesture?.pointerId;this.gesture=undefined;
+  private cancelDrag(clearSelection=true){
+    const pointer=this.gesture?.pointerId;window.clearTimeout(this.gesture?.holdTimer);this.gesture=undefined;
     if(pointer!==undefined&&this.inputStage?.hasPointerCapture(pointer))this.inputStage.releasePointerCapture(pointer);
-    this.selectedCard=undefined;this.dragUnit=undefined;this.point=undefined;
+    if(clearSelection)this.selectedCard=undefined;this.dragUnit=undefined;this.point=undefined;
     this.ui?.hideDrag();this.marks?.clear();
   }
   private clickField(x:number,y:number){
     const b=this.battle;if(!b.active||b.paused||!this.insideField(x,y))return;
     const bags=this.bagsAt(x,y);if(bags.length){for(const bag of bags)b.command({type:'collect',uid:bag.uid});return;}
+    if(this.selectedCard){const slot=this.fieldPoint(x,y,this.selectedCard);if(b.command({type:'deploy',card:this.selectedCard,...slot,facing:slot.floor%2?1:-1}))this.selectedCard=undefined;return;}
     const picked=b.units.filter(u=>this.units.get(u.uid)?.bounds.contains(x,y));
     if(picked.length>1){this.selectedUnit=undefined;this.ui.chooseUnits(picked);return;}
     if(picked.length){this.selectedUnit=picked[0].uid;this.ui.update();return;}
@@ -215,36 +328,6 @@ export class GameScene extends Phaser.Scene implements UIController {
     return v;
   }
 
-  private drawSupports(){
-    const art=manifest.scene;
-    const add=(sprite:string,x:number,y:number,w:number,h:number,depth:number)=>{
-      const s=manifest.sprites[sprite];return this.add.image(x,y,s.atlas,sprite).setOrigin(.5,0).setDisplaySize(w,h).setDepth(depth);
-    };
-    const cell=(VIEW.x1-VIEW.x0)/lastColumn;
-    for(let floor=1;floor<LEVEL.floors;floor++)for(let col=0;col<LEVEL.columns;col++){
-      const p=this.screen(floor,col);
-      const key=`${floor}:${col}`;
-      this.floors.set(key,add(art.floorModule,p.x,p.y-5,cell+3,VIEW.platformHeight,90+floor*100));
-      const hatch=manifest.objects.G07,frame=hatch.nodes.base;
-      const opening=frame.width/hatch.canvas[1]*VIEW.deviceHeight,edgeWidth=(cell-opening)/2+2;
-      this.floorEdges.set(key,[-1,1].map(side=>add(art.floorModule,p.x+side*(opening+edgeWidth)/2,p.y-5,edgeWidth,VIEW.platformHeight,90+floor*100).setVisible(false)));
-    }
-    for(const stair of Object.values(art.stairs)){
-      const [x,y,w,h]=stair.rect;
-      add(stair.sprite,(x+w/2)/art.canvas[0]*VIEW.width,y/art.canvas[1]*VIEW.height+VIEW.backgroundY,w/art.canvas[0]*VIEW.width,h/art.canvas[1]*VIEW.height,80);
-    }
-    const y=VIEW.topBeamY;
-    for(let col=1;col<lastColumn;col++){
-      const p=this.screen(2,col);add(art.beam,p.x,y,cell+5,VIEW.beamHeight,10);
-    }
-    for(const col of [1,lastColumn-1]){const p=this.screen(2,col);add(art.post,p.x,y,24,VIEW.floorY[2]-y,9);}
-  }
-
-  private label(key:string,text:string,x:number,y:number,size=20,color='#ffebbe'){
-    let label=this.labels.get(key);
-    if(!label){label=this.add.text(x,y,text,{fontFamily:'Microsoft YaHei, sans-serif',fontSize:size,color,stroke:'#1b2320',strokeThickness:4}).setOrigin(.5).setDepth(520);this.labels.set(key,label);}
-    label.setText(text).setPosition(x,y).setVisible(!!text);return label;
-  }
   private health(x:number,y:number,value:number,max:number,color:number,width=63){
     const g=this.graphics;g.fillStyle(0x151c18,.9);g.fillRoundedRect(x-width/2-2,y-2,width+4,10,3);
     g.fillStyle(color,1);g.fillRect(x-width/2,y,width*Math.max(0,value/max),6);
@@ -252,8 +335,11 @@ export class GameScene extends Phaser.Scene implements UIController {
 
   private paint(){
     const b=this.battle,g=this.graphics,m=this.marks;g.clear();m.clear();
-    for(const [key,image] of this.floors){const [floor,x]=key.split(':').map(Number),hatch=b.units.some(u=>u.def.kind==='hatch'&&u.floor===floor&&u.x===x);image.setVisible(!hatch);this.floorEdges.get(key)?.forEach(edge=>edge.setVisible(hatch));}
-    const usedLabels=new Set<string>();
+    this.worldLabels.begin();this.apertures.clear();
+    for(const hatch of b.units.filter(u=>u.def.kind==='hatch'&&u.openUntil>b.time)){
+      const p=this.screen(hatch.floor,hatch.x);
+      this.apertures.fillStyle(0x171b1b).fillRoundedRect(p.x-47,p.y-9,94,49,5);
+    }
     const usedFx=new Set<string>(),usedSprites=new Set<string>();
     const fx=(key:string,id:string,x:number,y:number,size:number,action='idle',progress?:number)=>{
       usedFx.add(key);let view=this.fx.get(key);if(!view){view=new ActorView(this,id,size);this.fx.set(key,view);}
@@ -264,10 +350,6 @@ export class GameScene extends Phaser.Scene implements UIController {
       if(!image){image=this.add.image(x,y,sp.atlas,frame).setDepth(475);this.sprites.set(key,image);}
       image.setTexture(sp.atlas,frame).setPosition(x,y).setDisplaySize(w,h);return image;
     };
-    const label=(key:string,text:string,x:number,y:number,size?:number,color?:string)=>{usedLabels.add(key);return this.label(key,text,x,y,size,color);};
-    const camp=this.screen(LEVEL.lord.floor,LEVEL.lord.x),chair=this.scenery.get('chair')!;
-    chair.root.setPosition(camp.x,camp.y).setDepth(305);chair.update('idle',b.time,1);
-    for(const [id,floor,x] of [['camp-flag',LEVEL.lord.floor,LEVEL.lord.x-.55],['exit-flag',0,-.3]] as const){const view=this.scenery.get(id)!,p=this.screen(floor,x);view.root.setPosition(p.x,p.y).setDepth(95+floor*100);view.update('idle',b.time,1);}
     for(const [id,entryKey] of [['gate','B'],['barrier','C']] as const){const entry=LEVEL.entries[entryKey],p=this.screen(entry.floor,entry.x),view=this.scenery.get(id)!;
       view.root.setPosition(p.x,p.y).setDepth(85);view.update(b.wave>=entry.wave?'open':'idle',b.time,1,0,{progress:b.wave>entry.wave?1:b.wave===entry.wave?Math.min(1,b.waveTime/RULES.entryWarning):0});}
     const draggingUnit=b.units.find(u=>u.uid===this.dragUnit);
@@ -276,35 +358,50 @@ export class GameScene extends Phaser.Scene implements UIController {
         const error=this.selectedCard?b.placementError(this.selectedCard,floor,col):b.rallyError(draggingUnit!.uid,floor,col);
         if(error)continue;
         const p=this.slotPoint(floor,col,this.selectedCard);
-        m.lineStyle(2,VIEW.colors.gold,.8);m.fillStyle(VIEW.colors.gold,.16);
-        m.fillRoundedRect(p.x-53,p.y-20,106,40,6);m.strokeRoundedRect(p.x-53,p.y-20,106,40,6);
+        m.fillStyle(0x704315,.5);m.fillRoundedRect(p.x-53,p.y-20,106,40,6);
+        m.lineStyle(6,0x342217,.95);m.strokeRoundedRect(p.x-53,p.y-20,106,40,6);
+        m.lineStyle(3,0xd29a42,1);m.strokeRoundedRect(p.x-53,p.y-20,106,40,6);
       }
       if(this.point){
         const p=this.slotPoint(this.point.floor,this.point.x,this.selectedCard);
         const error=this.selectedCard?b.placementError(this.selectedCard,this.point.floor,this.point.x):b.rallyError(draggingUnit!.uid,this.point.floor,this.point.x);
-        m.lineStyle(3,error?VIEW.colors.red:VIEW.colors.gold,.9);m.strokeEllipse(p.x,p.y,108,28);
+        m.lineStyle(7,0x342217,.95);m.strokeEllipse(p.x,p.y,108,28);
+        m.lineStyle(4,error?VIEW.colors.red:0xffcf73,1);m.strokeEllipse(p.x,p.y,108,28);
       }
     }
     const unitIds=new Set(b.units.map(u=>u.uid));
     for(const [uid,view] of this.units)if(!unitIds.has(uid)){this.retiring.set(uid,{view,since:b.time,action:view.hasAction('destroy')?'destroy':'dead'});this.units.delete(uid);}
     for(const [uid,item] of this.retiring){const progress=(b.time-item.since)/VIEW.destroyDuration;
-      if(progress>=1){item.view.destroy();this.retiring.delete(uid);}else{item.view.update(item.action,b.time,item.view.root.scaleX<0?-1:1,0,{progress});item.view.root.setAlpha(1-progress);}}
+      if(progress>=1){item.view.destroy();this.retiring.delete(uid);}else{item.view.update(item.action,b.time,item.view.facing,0,{progress});item.view.root.setAlpha(1-progress);}}
     for(const u of b.units){
-      let view=this.units.get(u.uid);if(!view){view=new ActorView(this,u.def.id,u.def.mobile?VIEW.actorHeight:VIEW.deviceHeight);this.units.set(u.uid,view);}
+      let view=this.units.get(u.uid);if(!view){
+        const ratio=characterMetrics[u.def.id as keyof typeof characterMetrics]?.bodyRatio||1;
+        const size=u.def.mobile?(u.def.hero?VIEW.heroHeight:VIEW.guardHeight)/ratio:u.def.kind==='hammer'?512*(VIEW.floorY[u.floor]-ceilingY(u.floor))/(680-32):VIEW.deviceHeight;
+        view=new ActorView(this,u.def.id,size);this.units.set(u.uid,view);
+      }
       const p=this.screen(u.floor,u.x),ceiling=u.def.surfaces.includes('ceiling');
       let lift=u.def.surfaces.length===1&&u.def.surfaces[0]==='wall'?VIEW.wallLift:0;
       view.root.setPosition(p.x,p.y-lift).setDepth(100+u.floor*100+(ceiling?0:10)).setAlpha(u.ready>0?.45:1);
-      const unitAction=u.ready>0?'deploy':u.hit>0?'hit':u.openUntil>b.time?'open':u.action==='attack'&&!u.def.mobile?'activate':u.def.kind==='income'?(b.bags.some(bag=>bag.source===u.uid)?'waiting':'produce'):u.def.manual&&u.cooldown>0?'load':u.def.kind==='wind'?'activate':u.hp<u.def.hp*.4&&!u.def.mobile?'damaged':u.action;
+      const unitAction=u.ready>0?'deploy':u.openUntil>b.time?'open':u.action==='attack'&&!u.def.mobile?'activate':u.def.kind==='income'?(b.bags.some(bag=>bag.source===u.uid)?'waiting':'produce'):u.def.manual&&u.cooldown>0?'load':u.def.kind==='wind'?'activate':u.hp<u.def.hp*.4&&!u.def.mobile?'damaged':u.action;
       let progress=unitAction==='deploy'?1-u.ready/RULES.buildTime:unitAction==='hit'?1-u.hit/RULES.hitFlash:unitAction==='load'?1-u.cooldown/u.def.interval:unitAction==='attack'||unitAction==='heal'||unitAction==='activate'&&u.action==='attack'?1-(u.actionUntil-b.time)/RULES.attackPoseTime:undefined;
+      if(unitAction==='skill')progress=1-(u.actionUntil-b.time)/RULES.heroSkillPoseTime;
       if(u.def.kind==='hammer'&&unitAction==='activate'){
         const impact=view.eventPhase('activate','impact')??.5;
         progress=u.pending>0?(1-u.pending/RULES.hammerWindup)*impact:impact+(1-impact)*(1-(u.actionUntil-b.time)/RULES.attackPoseTime);
       }
       view.update(unitAction,b.time,u.facing,u.hit,{progress:progress===undefined?undefined:Phaser.Math.Clamp(progress,0,1)});
       if(ceiling){view.alignAttachment('mount',p.x,ceilingY(u.floor));lift=p.y-view.root.y;}
+      if(u.def.kind==='income'){
+        const box=view.bounds,padding=10;
+        g.fillStyle(0xffd34f,.1).fillRoundedRect(box.x-padding,box.y-padding,box.width+padding*2,box.height+padding*2,12);
+        g.lineStyle(8,0x2b1c0a,.95).strokeRoundedRect(box.x-padding,box.y-padding,box.width+padding*2,box.height+padding*2,12);
+        g.lineStyle(4,0xffd34f,1).strokeRoundedRect(box.x-padding,box.y-padding,box.width+padding*2,box.height+padding*2,12);
+      }
+      if(u.ready<=0)this.worldLabels.show('unit-'+u.uid,u.def.kind==='income'?'军需账房 · 产军饷':u.def.name,p.x,ceiling?view.bounds.bottom+17:p.y+20,u.def.kind==='income'?'economy':'name');
       if(u.def.kind==='wind'&&u.ready<=0)fx('wind-'+u.uid,'FX-wind',p.x,p.y,VIEW.windSize,'play',(b.time%1.5)/1.5);
-      if(u.def.manual){this.health(p.x,p.y-lift-VIEW.deviceHeight-15,u.def.interval-u.cooldown,u.def.interval,VIEW.colors.gold,58);if(u.cooldown<=0)label('ready-'+u.uid,'可发动',p.x,p.y-lift-VIEW.deviceHeight-28,17);}
-      if(u.hit>0||this.selectedUnit===u.uid)this.health(p.x,p.y-lift-VIEW.deviceHeight-5,u.hp,u.def.hp,VIEW.colors.green);
+      if(u.def.manual){this.health(p.x,p.y-lift-VIEW.deviceHeight-15,u.def.interval-u.cooldown,u.def.interval,VIEW.colors.gold,58);if(u.cooldown<=0)sprite('ready-'+u.uid,'UI-ICONS/play',p.x,p.y-lift-VIEW.deviceHeight-36,26,30);}
+      const healthY=u.def.mobile?p.y-(u.def.hero?VIEW.heroHeight:VIEW.guardHeight)-15:p.y-lift-VIEW.deviceHeight-5;
+      if(u.healthRevealed||this.selectedUnit===u.uid)this.health(p.x,healthY,u.hp,u.def.hp,VIEW.colors.green,u.def.hero?86:63);
       if(this.selectedUnit===u.uid){
         m.lineStyle(3,VIEW.colors.gold,1);m.strokeEllipse(p.x,p.y-lift-5,100,28);
         if(u.def.range>0){m.lineStyle(2,VIEW.colors.gold,.35);m.strokeEllipse(p.x,p.y-20,u.def.range*(VIEW.x1-VIEW.x0)/lastColumn*2,65);}
@@ -317,11 +414,13 @@ export class GameScene extends Phaser.Scene implements UIController {
       const p=this.enemyScreen(e.uid)!;
       view.root.setPosition(p.x,p.y).setDepth(120+position(e.q).floor*100).setAlpha(e.hp<=0?Math.max(0,1-(b.time-(e.deadAt||0))/RULES.enemyDeathDuration):1);
       const onStairs=position(e.q).stairs;
-      const enemyAction=e.hp<=0?'dead':e.drop?'fall':e.hit>0?(e.uid===b.lord.carrier?'carry-hit':'hit'):e.action==='grab'||e.action==='attack'?e.action:onStairs?(e.uid===b.lord.carrier?'carry-stairs':'stairs'):e.action;
-      const progress=enemyAction==='dead'?(b.time-(e.deadAt??b.time))/RULES.enemyDeathDuration:enemyAction==='fall'?e.drop!.elapsed/RULES.dropTime:enemyAction==='hit'||enemyAction==='carry-hit'?1-e.hit/RULES.hitFlash:enemyAction==='grab'?e.grab/RULES.captureTime:enemyAction==='attack'?1-(e.actionUntil-b.time)/RULES.attackPoseTime:undefined;
-      view.update(enemyAction,b.time,e.face,e.hit,{shield:e.shield>0,progress});
+      const enemyAction=e.hp<=0?'dead':e.drop?'fall':e.stun>0?'hit':e.action==='grab'||e.action==='attack'?e.action:onStairs?(e.uid===b.lord.carrier?'carry-stairs':'stairs'):e.action;
+      const progress=enemyAction==='dead'?(b.time-(e.deadAt??b.time))/RULES.enemyDeathDuration:enemyAction==='fall'?(e.drop?e.drop.elapsed/RULES.dropTime:1-e.landing/RULES.scoutLandTime):enemyAction==='hit'?.4:enemyAction==='grab'?e.grab/RULES.captureTime:enemyAction==='attack'?Phaser.Math.Clamp(1-(e.actionUntil-b.time)/RULES.attackPoseTime,0,1):undefined;
+      const carrying=e.uid===b.lord.carrier&&['carry','carry-stairs'].includes(enemyAction);
+      const carryProgress=carrying?((b.time-(b.lord.carriedAt??b.time))/RULES.carryAnimationDuration)%1:undefined;
+      view.update(enemyAction,b.time,e.face,e.hit,{shield:e.shield>0,progress:carryProgress??progress});
       if(e.hanging&&!onStairs&&!e.drop){view.alignAttachment('grip',p.x,ceilingY(position(e.q).floor));p.y=view.root.y;}
-      if(e.hp>0&&(e.hit>0||e.uid===b.focus||e.uid===b.lord.carrier||e.def.id==='E07'))this.health(p.x,p.y-VIEW.actorHeight-12,e.hp,e.def.hp,VIEW.colors.red,e.def.heavy?90:63);
+      if(e.hp>0&&(e.healthRevealed||e.uid===b.focus||e.uid===b.lord.carrier||e.def.id==='E07'))this.health(p.x,p.y-VIEW.actorHeight*(e.def.heavy?1.2:1)-12,e.hp,e.def.hp,VIEW.colors.red,e.def.heavy?90:63);
       if(e.shield>0)this.health(p.x,p.y-VIEW.actorHeight-21,e.shield,e.def.shield||1,0x90b5bd,44);
       if(e.poison>0)fx('poison-'+e.uid,'FX-poison-status',p.x,p.y,VIEW.statusSize,'play',(b.time%1.1)/1.1);
       if(e.slow>0)fx('slow-'+e.uid,'FX-slow-ring',p.x,p.y+10,VIEW.statusSize);
@@ -330,22 +429,38 @@ export class GameScene extends Phaser.Scene implements UIController {
       if(e.uid===b.lord.grabber)this.health(p.x,p.y-VIEW.actorHeight-30,e.grab,RULES.captureTime,VIEW.colors.gold,82);
     }
     if(this.lordState!==b.lord.state||b.time<this.lordStateSince){this.lordState=b.lord.state;this.lordStateSince=b.time;}
-    let lp=this.screen(b.lord.floor,b.lord.x),action:string='idle',lordFacing=1,lordProgress:number|undefined;
+    let lp=this.screen(b.lord.floor,b.lord.x),action:string='idle',lordFacing=-1,lordProgress:number|undefined;
     if(b.lord.state==='carried'){
       const carrier=b.enemies.find(e=>e.uid===b.lord.carrier),cp=carrier?this.enemyScreen(carrier.uid):undefined;
-      if(cp){lp=cp;lordFacing=carrier!.face;action='struggle';label('lord-warning','主公被抓',cp.x,cp.y-VIEW.actorHeight-51,23,'#ffbf86');}
-    }else if(b.lord.state==='dropped'){const elapsed=b.time-this.lordStateSince;action=elapsed<RULES.dropTime?'fall':'crouch';if(action==='fall')lordProgress=elapsed/RULES.dropTime;label('lord-warning','待救',lp.x,lp.y-VIEW.lordHeight-12,22,'#f2d184');}
+      if(cp){lp=cp;lordFacing=carrier!.face;action='struggle';sprite('lord-warning','UI-ICONS/grab',cp.x,cp.y-VIEW.actorHeight-51,40,40);}
+    }else if(b.lord.state==='dropped'){const elapsed=b.time-this.lordStateSince;action=elapsed<RULES.dropTime?'fall':'crouch';if(action==='fall')lordProgress=elapsed/RULES.dropTime;sprite('lord-warning','UI-ICONS/rescue',lp.x,lp.y-VIEW.lordHeight-24,40,40);}
     else if(b.lord.state==='grabbing'){action='grab';lordProgress=(b.enemies.find(e=>e.uid===b.lord.grabber)?.grab??0)/RULES.captureTime;}
     else if(b.lord.state==='returning'){
       const end=this.screen(LEVEL.lord.floor,LEVEL.lord.x),t=1-b.lord.returning/RULES.recallTime;
       lp={x:Phaser.Math.Linear(lp.x,end.x,t),y:Phaser.Math.Linear(lp.y,end.y,t)-Math.sin(t*Math.PI)*80};action='return';lordProgress=t;
     }else if(b.phase==='won')action='cheer';
-    this.lord.root.setPosition(lp.x,lp.y).setDepth(460).setVisible(b.lord.state!=='lost');this.lord.update(action,b.time,lordFacing,0,{progress:lordProgress});
+    this.lord.root.setPosition(lp.x,lp.y).setDepth(460).setVisible(b.lord.state!=='lost');this.lord.update(action,action==='idle'?this.campTime:b.time,lordFacing,0,{progress:lordProgress});
+    if(action==='crouch')this.campDancersDismissed=true;
+    const camp=this.screen(LEVEL.lord.floor,LEVEL.lord.x);
+    const showDancers=!this.campDancersDismissed&&b.lord.state==='idle'&&b.phase!=='won';
+    for(const [index,dancer] of this.campDancers.entries()){
+      const offset=VIEW.campDancers.offsets[index];
+      dancer.root.setPosition(camp.x+offset.x,camp.y+offset.y).setDepth(340+index).setVisible(showDancers);
+      if(showDancers)dancer.update('dance',this.campTime,1,0,{phaseOffset:index*VIEW.intro.danceOffset});
+    }
     if(b.lord.state==='carried'&&b.lord.carrier){const grip=this.enemies.get(b.lord.carrier)?.attachment('carry');if(grip){this.lord.alignAttachment('carried',grip.x,grip.y);lp={x:this.lord.root.x,y:this.lord.root.y};}}
+    const lordBounds=this.lord.bounds,camera=this.cameras.main;
+    this.ui.trackLord(camera.matrixCombined.transformPoint(lordBounds.centerX,lordBounds.centerY),camera);
     if(b.lord.shield>0){fx('lord-shield','FX-shield',lp.x,lp.y+10,VIEW.shieldSize);this.health(lp.x,lp.y-145,b.lord.shield,RULES.shieldHp,VIEW.colors.gold,105);}
     if(b.lord.grace>0)fx('lord-grace','FX-rescue',lp.x,lp.y+12,VIEW.statusSize);
     if(b.lord.state==='returning')fx('lord-return','FX-return-trail',lp.x,lp.y,VIEW.statusSize);
-    for(const bag of b.bags){const p=this.screen(bag.floor,bag.x),y=p.y-VIEW.bag.lift-Math.sin(b.time*VIEW.bag.bobSpeed+bag.uid)*VIEW.bag.bob;sprite('bag-'+bag.uid,'MX-A/G04-bag',p.x,y,VIEW.bag.width,VIEW.bag.height);label('bag-'+bag.uid,String(bag.amount),p.x,y-30,18,'#ffe9ae');}
+    if(b.phase!=='select'){
+      this.worldLabels.show('lord-name','刘备',lp.x,lp.y+22);
+      const speech=b.lord.state==='carried'?'快拦住他！':b.lord.state==='dropped'?'扶我回营！':b.lord.state==='grabbing'?'护驾！护驾！':b.phase==='prepare'?'守住新野！':b.phase==='won'?'诸位辛苦了！':'';
+      if(speech)this.worldLabels.show('lord-speech',speech,lp.x-55,lp.y-VIEW.lordHeight-20,'speech');
+      for(let floor=0;floor<3;floor++)this.worldLabels.show('tier-'+floor,['城外','城内','营帐'][floor],this.cameras.main.worldView.left+34,VIEW.floorY[floor]-59,'banner');
+    }
+    this.paintBags();
     for(const shot of b.projectiles){
       const p=worldPoint(shot.x,shot.y);
       if(!this.projectileOffsets.has(shot.uid)){
@@ -354,25 +469,93 @@ export class GameScene extends Phaser.Scene implements UIController {
       }
       const offset=this.projectileOffsets.get(shot.uid)!,blend=Math.max(0,1-(b.time-shot.born)/VIEW.projectileBlend);
       if(shot.kind!=='log'){p.x+=offset.x*blend;p.y+=offset.y*blend;}
-      if(shot.kind==='arrow')sprite('shot-'+shot.uid,'FX/arrow',p.x,p.y,58,11).setRotation(Math.atan2(-shot.vy,shot.vx));
+      if(shot.kind==='arrow')sprite('shot-'+shot.uid,'FX/arrow',p.x,p.y,58,11).setFlipX(true).setRotation(Math.atan2(-shot.vy,shot.vx));
       else if(shot.kind==='poison')sprite('shot-'+shot.uid,'FX/poison-drop',p.x,p.y,18,29);
       else sprite('shot-'+shot.uid,'MX-B/M02-log',p.x,p.y+23,80,55).setRotation(b.time*Math.sign(shot.vx)*4);
     }
     for(const effect of b.effects){
+      if(effect.hero){this.paintHeroSkill(effect);continue;}
       const p=this.screen(effect.floor,effect.x),t=1-effect.life/effect.maxLife;
       const id=VIEW.effectArt[effect.kind];if(id)fx('effect-'+effect.uid,id,p.x,p.y,VIEW.effectSize,'play',t);
-      if(effect.value)label('effect-'+effect.uid,'+'+effect.value,p.x,p.y-85-t*35,24,effect.kind==='heal'?'#b6ecc7':'#ffe29c').setAlpha(1-t);
     }
     if(b.phase!=='select')for(const [key,entry] of Object.entries(LEVEL.entries)){
       const p=this.screen(entry.floor,entry.x),opened=b.wave>=entry.wave;
       const warning=b.phase==='wave'&&b.wave===entry.wave&&b.waveTime<RULES.entryWarning&&key!=='A';
-      const caption=warning?`${entry.name} ${Math.ceil(RULES.entryWarning-b.waveTime)}秒`:opened?(key==='A'?'撤离口':'援军入口'):`第${entry.wave}波开启`;
-      label('entry-'+key,caption,p.x,p.y+26,19,key==='A'?'#ffb398':warning?'#ffe391':'#d2e2d5');
+      if(warning)this.worldLabels.show('entry-'+key,`${key==='B'?'城门':'营地'}来敌 ${Math.ceil(RULES.entryWarning-b.waveTime)}秒`,p.x+(key==='B'?-100:100),p.y-110,'speech');
+      if(key==='A')this.worldLabels.show('exit','← 撤离口',p.x+28,p.y+40);
+      else if(!opened)this.worldLabels.show('entry-closed-'+key,`第${entry.wave}波来敌`,p.x+(key==='B'?-42:42),p.y+22);
     }
-    if(b.wave===LEVEL.waves.length&&b.waveTime>=16&&b.waveTime<24)label('boss','曹洪将至',VIEW.width/2,117,27,'#ffd096');
-    for(const [key,text] of this.labels)if(!usedLabels.has(key)){text.destroy();this.labels.delete(key);}
+    if(b.wave===LEVEL.waves.length&&b.waveTime>=16&&b.waveTime<24)sprite('boss','UI-ICONS/warning',VIEW.width/2,117,52,52);
     for(const [key,view] of this.fx)if(!usedFx.has(key)){view.destroy();this.fx.delete(key);}
     for(const [key,image] of this.sprites)if(!usedSprites.has(key)){image.destroy();this.sprites.delete(key);}
     const projectileIds=new Set(b.projectiles.map(shot=>shot.uid));for(const uid of this.projectileOffsets.keys())if(!projectileIds.has(uid))this.projectileOffsets.delete(uid);
+    this.worldLabels.end();
+  }
+
+  private paintHeroSkill(effect:Effect){
+    if(!effect.hero)return;
+    const skill=HERO_SKILLS[effect.hero],p=this.screen(effect.floor,effect.x),g=this.graphics;
+    const elapsed=effect.maxLife-effect.life,t=Math.min(1,elapsed/.85),fade=Math.max(0,1-t);
+    const reach=skill.range*(VIEW.x1-VIEW.x0)/lastColumn,face=effect.facing||1;
+    const viewport=this.cameras.main.worldView;
+    const calloutX=Phaser.Math.Clamp(p.x+face*42,viewport.left+195,viewport.right-195);
+    const calloutY=Phaser.Math.Clamp(p.y-VIEW.heroHeight-62,viewport.top+70,viewport.bottom-80);
+    const label=this.worldLabels.show('hero-skill-'+effect.uid,`${skill.name}！\n${skill.line}`,calloutX,calloutY,'skill',skill.ink);
+    label.setAlpha(Math.min(1,effect.life/.25)).setScale(1+Math.sin(Math.min(1,elapsed/.2)*Math.PI)*.08);
+    if(fade<=0)return;
+    if(effect.hero==='guanyu'){
+      // Two sweeping crescents show the complete near-range cleave.
+      for(const side of [-1,1]){
+        const sweep=Math.min(1,t*3),outer:Phaser.Math.Vector2[]=[],inner:Phaser.Math.Vector2[]=[];
+        for(let i=0;i<=24;i++){
+          const angle=-1.35+i/24*2.7*sweep;
+          outer.push(new Phaser.Math.Vector2(p.x+side*Math.cos(angle)*reach,p.y-72+Math.sin(angle)*88));
+          inner.unshift(new Phaser.Math.Vector2(p.x+side*Math.cos(angle)*reach*.64,p.y-72+Math.sin(angle)*62));
+        }
+        g.fillStyle(skill.color,fade*.72).fillPoints([...outer,...inner],true);
+        g.lineStyle(4,0xf1ffcb,fade).strokePoints(outer,false);
+      }
+    }else if(effect.hero==='zhangfei'){
+      for(let ring=0;ring<3;ring++){
+        const phase=Math.max(0,Math.min(1,t*1.7-ring*.2)),radius=reach*phase;
+        g.lineStyle(9-ring*2,skill.color,fade*(1-phase)*.95).strokeEllipse(p.x,p.y-45,radius*2,radius);
+      }
+      for(let ray=0;ray<12;ray++){
+        const angle=ray/12*Math.PI*2,inner=reach*(.35+t*.35),outer=inner+20*(1-t);
+        g.lineStyle(4,0xffdf9d,fade).lineBetween(p.x+Math.cos(angle)*inner,p.y-50+Math.sin(angle)*inner*.5,p.x+Math.cos(angle)*outer,p.y-50+Math.sin(angle)*outer*.5);
+      }
+    }else{
+      for(const side of [-1,1])for(let swirl=0;swirl<3;swirl++){
+        const distance=reach*Math.min(1,t*1.5+swirl*.16),x=p.x+side*distance;
+        const points:Phaser.Math.Vector2[]=[];
+        for(let i=0;i<=36;i++){
+          const height=i/36,angle=height*Math.PI*5-elapsed*13;
+          points.push(new Phaser.Math.Vector2(x+Math.cos(angle)*(14+height*33),p.y-8-height*140+Math.sin(angle)*9));
+        }
+        g.lineStyle(9,skill.color,fade*.28).strokePoints(points,false);
+        g.lineStyle(3,0xe9faff,fade*.9).strokePoints(points,false);
+      }
+    }
+  }
+
+  private paintBags(){
+    const b=this.battle,live=new Set(b.bags.map(bag=>bag.uid));
+    for(const [uid,view] of this.bagViews)if(!live.has(uid)){view.root.destroy(true);this.bagViews.delete(uid);}
+    const sourceCounts=new Map<number,number>();
+    for(const bag of b.bags){
+      let view=this.bagViews.get(bag.uid);
+      if(!view){
+        const root=this.add.container(0,0).setDepth(510);
+        const back=this.add.graphics().fillStyle(0x211305,.95).fillCircle(0,0,42)
+          .lineStyle(4,0xffd34c,1).strokeCircle(0,0,42);
+        const icon=this.add.image(0,-3,'ui-money-coin').setDisplaySize(VIEW.bag.width,VIEW.bag.height);
+        const amount=this.add.text(0,38,'',{fontFamily:'Arial, sans-serif',fontSize:'30px',fontStyle:'bold',color:'#fff5b0',stroke:'#251405',strokeThickness:7,padding:{x:5,y:3}}).setOrigin(.5);
+        root.add([back,icon,amount]);view={root,amount};this.bagViews.set(bag.uid,view);
+      }
+      const index=sourceCounts.get(bag.source)||0;sourceCounts.set(bag.source,index+1);
+      const p=this.screen(bag.floor,bag.x),y=p.y-VIEW.bag.lift-Math.sin(b.time*VIEW.bag.bobSpeed+bag.uid)*VIEW.bag.bob;
+      view.root.setPosition(p.x+(index%2?48:0),y-Math.floor(index/2)*32).setScale(1+Math.sin(b.time*3+bag.uid)*.035);
+      view.amount.setText(String(bag.amount));
+    }
   }
 }

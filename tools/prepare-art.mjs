@@ -7,7 +7,7 @@ const sharp = require('sharp');
 const root = path.resolve(import.meta.dirname, '..');
 const records = JSON.parse(await fs.readFile(path.join(root, 'art/generation-records.json'), 'utf8'));
 const packing = JSON.parse(await fs.readFile(path.join(root, 'art/packing-settings.json'), 'utf8'));
-const outDir = path.join(root, 'assets/game');
+const outDir = path.join(root, 'art/packed/legacy');
 await fs.mkdir(outDir, { recursive: true });
 const result = { version: 2, description: '唯一美术资源映射。所有坐标为像素；动作采用归一化时间，实际时长由游戏规则传入。', files: {}, sprites: {}, sources: {}, statistics: {} };
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -17,7 +17,7 @@ for (const job of records.jobs) {
   const meta = await sharp(source).metadata();
   sourceBytes += source.length;
   if (job.kind === 'plate') {
-    const dest = `assets/game/${job.name}.webp`;
+    const dest = `art/packed/legacy/${job.name}.webp`;
     const {data,info: scaled} = await sharp(source).resize({width:packing.background.maxWidth,height:packing.background.maxHeight,fit:'inside',withoutEnlargement:true}).webp({ quality: packing.background.quality, alphaQuality: 100, effort: 6 }).toBuffer({resolveWithObject:true});
     await fs.writeFile(path.join(root, dest), data);
     result.files[job.id] = { path: dest, width: scaled.width, height: scaled.height, bytes: data.length, sha256: sha(data), hasAlpha: meta.hasAlpha, source: job.source };
@@ -101,7 +101,7 @@ for (const job of records.jobs) {
   const height=Math.ceil((py+rowHeight+gutter)/16)*16;
   if(height>packing.maxAtlasEdge)throw new Error(job.id+': 图集超过微信素材上限，需要拆包。');
   const data = await sharp({ create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(composite).webp({ quality: settings.quality, alphaQuality: 100, effort: 6, smartSubsample: true }).toBuffer();
-  const dest = `assets/game/${job.name}.webp`;
+  const dest = `art/packed/legacy/${job.name}.webp`;
   await fs.writeFile(path.join(root, dest), data);
   result.files[job.id] = { path: dest, width, height, bytes: data.length, sha256: sha(data), hasAlpha: true, source: job.source, encoding: `WebP quality ${settings.quality}; alpha preserved; tight shelf packing; ${gutter}px gutters` };
   result.sources[job.id] = { path: job.source, width: meta.width, height: meta.height, bytes: source.length, sha256: sha(source), grid: job.grid, cells: crops };

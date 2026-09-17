@@ -1,6 +1,41 @@
-html,body{margin:0;width:100%;height:100%;background:#17231f}
-#loading-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#17231f;color:#eedbb3;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
-.loading-content{width:min(62vw,420px);text-align:center}.loading-label{font-size:clamp(16px,2.3vw,24px);letter-spacing:3px}
-.loading-track{height:12px;margin:24px 0 14px;padding:2px;border:1px solid #ad8c55;border-radius:8px;background:#0c1612;overflow:hidden}
-.loading-track i{display:block;height:100%;width:0;background:#dcb764;border-radius:5px;transition:width .16s ease}
-.loading-percent{font-size:16px;font-variant-numeric:tabular-nums;color:#b7b9a8}.loading-retry{margin-top:20px;padding:10px 28px;border:1px solid #cfb17a;border-radius:6px;color:#eedbb3;background:#304537;font:inherit;cursor:pointer}.loading-retry[hidden]{display:none}
+@font-face{font-family:"Tower Display";src:url('../assets/fonts/tower-display.woff2') format('woff2');font-style:normal;font-weight:400;font-display:block}
+html,body{margin:0;width:100%;height:100%;background:#211911;overflow:hidden;overscroll-behavior:none}
+#viewport{position:fixed;inset:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+#stage{position:absolute;width:1600px;height:900px;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--rotation,0deg)) scale(var(--fit,1));transform-origin:center;overflow:hidden;visibility:hidden;touch-action:none}
+#stage[data-fitted="true"]{visibility:visible}
+#loading-screen{
+  position:absolute;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;
+  background:radial-gradient(ellipse at center,#403326,#1d1610 75%);color:#eedbb3;
+  font-family:"Tower Display","Microsoft YaHei",sans-serif;pointer-events:auto;
+}
+.loading-content{width:1160px;margin-bottom:28px;text-align:center}
+.loading-logo{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:560px;max-height:300px;object-fit:contain;filter:drop-shadow(0 5px 5px #0008)}
+.loading-track{height:17px;margin:0 0 8px;padding:3px;border:2px solid #ab8144;border-radius:6px;background:#21170f;box-shadow:0 2px 0 #130d09;overflow:hidden}
+.loading-track i{display:block;height:100%;width:0;background:#c79c56;border-radius:2px;box-shadow:inset 0 2px 0 #e1bd7a;transition:width .16s ease}
+.loading-caption{display:flex;justify-content:space-between;gap:16px;font-size:20px;font-weight:bold;text-shadow:0 2px 1px #21160e}
+.loading-caption strong{font-family:Arial,sans-serif;font-size:18px;font-variant-numeric:tabular-nums}
+#loading-screen:not(.in-camp) .loading-track{height:28px;border-width:3px;padding:4px;margin-bottom:10px}
+#loading-screen:not(.in-camp) .loading-caption{font-size:32px;line-height:1.25}
+#loading-screen:not(.in-camp) .loading-caption strong{font-size:30px}
+.loading-enter,.loading-retry{
+  display:inline-flex;align-items:center;justify-content:center;gap:16px;margin:0 0 20px;padding:14px 30px;
+  color:#261c12;border:0;background:url('../assets/game/ui-redraw/button.webp') center/100% 100% no-repeat;
+  font:400 23px "Tower Display","Microsoft YaHei",sans-serif;cursor:pointer;filter:drop-shadow(0 4px 0 #160f0b99);
+}
+.loading-enter i{width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;border-left:12px solid #4e2c19}
+.loading-enter[hidden],.loading-retry[hidden]{display:none}
+.loading-enter:focus-visible,.loading-retry:focus-visible{outline:4px solid #ecd5a4;outline-offset:5px}
+.loading-enter:active,.loading-retry:active{transform:translateY(2px)}
+#loading-screen.in-camp{position:absolute;background:linear-gradient(transparent 72%,#1c140bc7)}
+#loading-screen.in-camp .loading-logo{display:none}
+#loading-screen.in-camp .loading-content{width:1160px;margin-bottom:28px}
+#loading-screen.in-camp .loading-track{height:28px;border-width:3px;padding:4px;margin-bottom:10px}
+#loading-screen.in-camp .loading-caption{font-size:32px;line-height:1.25}
+#loading-screen.in-camp .loading-caption strong{font-size:30px}
+#loading-screen.in-camp .loading-enter{width:432px;height:124px;margin-bottom:20px;font-size:50px;letter-spacing:4px;gap:28px}
+#loading-screen.in-camp .loading-enter i{border-top-width:13px;border-bottom-width:13px;border-left-width:19px}
+#loading-screen.in-camp .loading-retry{min-width:360px;height:104px;font-size:42px}
+#loading-screen.ready .loading-track i{background:#d2ac68}
+#loading-screen.failed .loading-track{border-color:#ba6850}
+#loading-screen.failed .loading-track i{background:#a65d43}
+@media(prefers-reduced-motion:reduce){.loading-track i{transition:none}}

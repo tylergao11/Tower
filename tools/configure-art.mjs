@@ -1,15 +1,11 @@
-import {configureCharacters} from './character-art.mjs';
+import {configureWholeCharacters} from './whole-character-art.mjs';
+import {finalizeRuntimeArt} from './runtime-art.mjs';
 import fs from 'node:fs/promises';
+import {configureNoncharacterRedraw} from './noncharacter-redraw.mjs';
 import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'..');
 const m=JSON.parse(await fs.readFile(path.join(root,'art/packed-assets.json'),'utf8'));
-const joints=JSON.parse(await fs.readFile(path.join(root,'art/character-joints.json'),'utf8'));
-for(const [id,points]of Object.entries(joints)){
-  if(!m.sprites[id])throw new Error('Joint data references missing sprite: '+id);
-  m.sprites[id].joints=points;
-}
 m.objects={};m.bindings={};
-if(m.sprites['FX/arrow']){const a=m.sprites['FX/arrow'];m.sprites['FX/cord']={atlas:a.atlas,rect:[a.rect[0]+Math.floor(a.rect[2]*.48),a.rect[1]+Math.floor(a.rect[3]*.5),2,1],derivedFrom:'FX/arrow',purpose:'弓弦细线纹理，长度和拉弦位置由分件轨道驱动'};}
 const clone=v=>structuredClone(v);
 function node(sprite,x,y,width,height,z,pivot=[.5,.5],extra={}) {return {sprite,x,y,width,height,z,pivot,rotation:0,scaleX:1,scaleY:1,alpha:1,...extra};}
 function clip(object,name,poses,events=[],loop=false) {
@@ -28,7 +24,6 @@ function clip(object,name,poses,events=[],loop=false) {
 }
 const timed=(count,fn)=>Array.from({length:count},(_,i)=>[i/(count-1),fn(i/(count-1))]);
 function register(o) {m.objects[o.id]=o;m.bindings[o.id]={name:o.name,status:'layered-animation-ready',object:o.id,defaultAction:'idle'};}
-configureCharacters(m,{node,clip,timed,register,clone});
 
 function mechanism(id,name,atlas,parts,anchor=[256,486]) {
   if(!m.files[atlas])return;
@@ -74,12 +69,6 @@ for(const args of specs){const o=mechanism(...args);if(!o)continue;
 }
 
 function single(id,name,sprite,width,height,kind='effect') {const o={id,name,kind,canvas:[512,512],anchor:[256,486],nodes:{image:node(sprite,256,486,width,height,0,[.5,1])},clips:{},attachments:{foot:{x:256,y:486}}};clip(o,'idle',[[0,{}],[1,{}]],[],true);register(o);return o;}
-if(m.files['B05-dancer']){
- const o=single('B05-dancer','营帐舞女','B05-dancer/dance-0',400,400,'dancer');
- const source=m.sources['B05-dancer'],cw=source.width/4,scale=440/cw;
- const keys=Array.from({length:9},(_,i)=>{const n=i%8,s=m.sprites['B05-dancer/dance-'+n],col=n%4;return {t:i/8,hold:true,sprite:'B05-dancer/dance-'+n,width:s.sourceSize[0]*scale,height:s.sourceSize[1]*scale,x:256+(s.sourceRect[0]+s.sourceRect[2]/2-(col+.5)*cw)*scale,y:486};});
-  o.clips.dance={loop:true,duration:1.8,tracks:{image:keys},events:[{t:0,event:'step'},{t:.5,event:'turn'}]};o.clips.idle=clone(o.clips.dance);
-}
 if(m.files.FX){for(const name of ['hit','block','dust','poison-drop','poison-splash','poison-status','wind','slow-ring','heal','repair','rescue','return-trail','shield','shield-break','wood','metal']){
  const o=single('FX-'+name,name,'FX/'+name,320,250);clip(o,'play',[[0,{image:{alpha:0,scaleX:.5,scaleY:.5}}],[.18,{image:{alpha:1,scaleX:1,scaleY:1}}],[.65,{image:{alpha:.85,scaleX:1.12,scaleY:1.12}}],[1,{image:{alpha:0,scaleX:1.3,scaleY:1.3}}]]);}
  const fire=single('FX-fire','火焰','FX/fire-0',180,270);fire.clips.idle={loop:true,tracks:{image:[0,1,2,0].map((n,i)=>({t:i/3,sprite:'FX/fire-'+n,hold:true}))},events:[]};
@@ -96,9 +85,12 @@ if(m.files['B-PARTS']){
 
 m.actionAliases={enemy:{carryStairs:'carry-stairs',carryHit:'carry-hit',death:'dead',stairUp:'stairs',stairDown:'stairs'},lord:{idle:'idle',grabbing:'grab',carried:'struggle',dropped:'crouch',returning:'return',victory:'cheer'},mechanism:{attack:'activate',ready:'idle',death:'destroy'}};
 m.scene={canvas:[1672,941],background:'B01',laneBaselines:[819,556,292],columnCenters:{start:140,end:1532,count:10},layers:{background:0,rearSupports:10,devices:20,characters:30,frontLip:40,effects:50,ui:60},intro:{background:'B05-BACKDROP',lord:[1250,785,.9],chair:[1250,785,.9],dancers:[[510,800,.84],[815,763,.72]]},floorModule:'B-PARTS/platform',floorFront:'B-PARTS/front-lip',beam:'B-PARTS/beam',post:'B-PARTS/post',stairs:{bottomToMiddle:{sprite:'B-PARTS/stairs-left',rect:[1470,540,202,296]},middleToTop:{sprite:'B-PARTS/stairs-right',rect:[0,281,202,291]}}};
-m.loadingGroups={intro:['L01','L01-LEGS','B05-dancer','B05-BACKDROP','UI-PANELS','UI-ICONS'],battle:['B01','B-PARTS','MX-A','MX-B','FX','L01','L01-LEGS','UI-PANELS','UI-ICONS'],enemies:['E01','E02','E03','E04','E05','E06','E07'],defenders:['S01','S02']};
+m.loadingGroups={intro:['L01','B05-dancer','B05-BACKDROP','UI-PANELS','UI-ICONS'],battle:['B01','B-PARTS','MX-A','MX-B','FX','L01','UI-PANELS','UI-ICONS'],enemies:['E01','E02','E03','E04','E05','E06','E07'],defenders:['S01','S02']};
 m.actionLabels={idle:'待机',walk:'行走',stairs:'上下楼梯',carry:'携带行走','carry-stairs':'携带过楼梯',attack:'攻击',grab:'抓取',hit:'受击','carry-hit':'携带受击',fall:'落地',dead:'倒地',deploy:'部署',withdraw:'撤回',block:'举盾格挡','shield-break':'盾牌破碎','shield-stripped':'被钩走盾',climb:'攀顶','drop-from-beam':'松手下落','jump-stairs':'跳梯',heal:'治疗',repair:'维修','self-heal':'给自己治疗',struggle:'被扛挣扎',crouch:'蹲伏呼救','stand-up':'起身',return:'回营',cheer:'胜利松气',activate:'发动',broken:'损坏残件',destroy:'摧毁',damaged:'受损',remove:'拆除',aim:'瞄准',produce:'产出钱袋',waiting:'待收',collect:'收取',disabled:'停用',open:'开启',load:'装填',empty:'空架',cooldown:'冷却复位',dance:'舞蹈',play:'播放',fly:'飞行'};
 m.scene.showcase=[{id:'G04',floor:2,column:2,action:'produce'},{id:'G05',floor:2,column:4,action:'activate'},{id:'S02',floor:2,column:5.1,action:'heal'},{id:'E04',floor:2,column:6.4,action:'climb',elevated:true},{id:'G08',floor:2,column:7.5,action:'activate',elevated:true},{id:'G03',floor:1,column:2,action:'activate',elevated:true},{id:'G06',floor:1,column:4,action:'hit'},{id:'E02',floor:1,column:5.2,action:'block',facing:-1},{id:'S01',floor:1,column:6.2,action:'attack'},{id:'G07',floor:1,column:7.6,action:'activate'},{id:'G01',floor:0,column:2,action:'activate'},{id:'G02',floor:0,column:3.5,action:'activate'},{id:'E01',floor:0,column:4.8,action:'walk'},{id:'E03',floor:0,column:6,action:'attack'},{id:'M01',floor:0,column:7.2,action:'activate',elevated:true},{id:'M02',floor:0,column:8.4,action:'activate'}];
 
+await configureNoncharacterRedraw(m,root,{node,clip,register,clone});
+await configureWholeCharacters(m,root);
+await finalizeRuntimeArt(m,root);
 await fs.writeFile(path.join(root,'assets/game/asset-manifest.json'),JSON.stringify(m)+'\n','utf8');
 console.log('角色动作:',Object.keys(m.objects).length,Object.values(m.objects).reduce((n,o)=>n+Object.keys(o.clips).length,0));

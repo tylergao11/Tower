@@ -3,11 +3,11 @@ import rawManifest from '../../assets/game/asset-manifest.json';
 import { CARDS, RULES, VIEW } from '../config';
 import { sampleArt, artPhase, type ArtObject, type ArtPose } from '../../art/runtime/art-player.js';
 export const manifest=rawManifest as unknown as {
-  files:Record<string,{path:string;width:number;height:number;bytes:number;sha256:string;cols?:number;rows?:number}>;
+  files:Record<string,{path:string;width:number;height:number;bytes:number;sha256:string;preload?:boolean;cols?:number;rows?:number}>;
   sprites:Record<string,{atlas:string;rect:number[];anchor?:number[];joints?:Record<string,[number,number]>}>;
   objects:Record<string,ArtObject>;
   bindings:Record<string,{sprites?:string[];object?:string;defaultAction?:string;cardPose?:{action:string;phase:number}}>;
-  scene:{canvas:[number,number];floorModule:string;floorFront:string;beam:string;post:string;stairs:Record<string,{sprite:string;rect:number[]}>;intro:{background:string;lord:[number,number,number];chair:[number,number,number];dancers:Array<[number,number,number]>}};
+  scene:{canvas:[number,number];background:string;integrated:boolean;laneBaselines:number[];stairs:Record<string,{rect:number[]}>;intro:{background:string;lord:[number,number,number];chair:[number,number,number];dancers:Array<[number,number,number]>}};
   loadingGroups:Record<string,string[]>;
 };
 const previews=new Map<string,string>();
@@ -20,17 +20,11 @@ function tightPreview(canvas:HTMLCanvasElement) {
   const result=document.createElement('canvas');result.width=result.height=256;
   const width=Math.max(1,right-left+1),height=Math.max(1,bottom-top+1),scale=232/Math.max(width,height);
   result.getContext('2d')!.drawImage(canvas,left,top,width,height,(256-width*scale)/2,(256-height*scale)/2,width*scale,height*scale);
-  return result.toDataURL();
+  return result.toDataURL('image/webp',.9);
 }
 
 // UI images use the same layered pose and atlas rectangles as the battlefield.
 export function installPreviews(scene:Phaser.Scene) {
-  const crop=(name:string)=>{
-    const sp=manifest.sprites[name],canvas=document.createElement('canvas');canvas.width=sp.rect[2];canvas.height=sp.rect[3];
-    canvas.getContext('2d')!.drawImage(scene.textures.get(sp.atlas).getSourceImage() as HTMLImageElement,sp.rect[0],sp.rect[1],sp.rect[2],sp.rect[3],0,0,canvas.width,canvas.height);
-    previews.set(name,canvas.toDataURL());
-  };
-  for(const key of Object.keys(manifest.sprites))if(key.startsWith('UI-'))crop(key);
   for(const card of CARDS){
     const art=manifest.objects[card.id],pose=manifest.bindings[card.id].cardPose||{action:'idle',phase:0};
     if(!art)throw new Error(`Missing art object: ${card.id}`);
@@ -46,12 +40,22 @@ export function installPreviews(scene:Phaser.Scene) {
     }
     previews.set(card.id,tightPreview(canvas));
   }
-  for(const name of ['card','panel','gold-button','ivory-button','hud-bar','warning-bar'])document.documentElement.style.setProperty('--art-'+name,`url("${previewFor('UI-PANELS/'+name)}")`);
 }
-export function preloadArt(scene:Phaser.Scene) {for(const [key,file] of Object.entries(manifest.files))if(!scene.textures.exists(key))scene.load.image(key,`${file.path}?v=${file.sha256.slice(0,12)}`);}
+export function preloadArt(scene:Phaser.Scene,keys=Object.keys(manifest.files)) {
+  for(const key of keys){const file=manifest.files[key];if(file.preload!==false&&!scene.textures.exists(key))scene.load.image(key,`${file.path}?v=${file.sha256.slice(0,12)}`);}
+}
+/** Warm the browser image cache for CSS art without adding GPU textures. */
+export function preloadInterfaceImages() {
+  const urls=import.meta.glob<string>('../../assets/game/{ui-redraw,noncharacter-redraw/ui}/*.webp',{eager:true,query:'?url',import:'default'});
+  return Promise.all(Object.values(urls).map(url=>new Promise<void>((resolve,reject)=>{
+    const image=new Image();image.onload=()=>resolve();image.onerror=()=>reject(new Error('UI image failed: '+url));image.src=url;
+  })));
+}
 export function installFrames(scene:Phaser.Scene) {
   for(const [name,sprite] of Object.entries(manifest.sprites)){
-    const [x,y,w,h]=sprite.rect;scene.textures.get(sprite.atlas).add(name,0,x,y,w,h);
+    if(!scene.textures.exists(sprite.atlas))continue;
+    const texture=scene.textures.get(sprite.atlas);if(texture.has(name))continue;
+    const [x,y,w,h]=sprite.rect;texture.add(name,0,x,y,w,h);
   }
 }
 export function spriteFor(id:string) {
@@ -86,13 +90,14 @@ export class ActorView {
 
   update(action:string,time:number,facing:number,hit=0,options:{shield?:boolean;progress?:number;duration?:number;phaseOffset?:number}={}) {
     if(action!==this.current||time<this.since){this.current=action;this.since=time;}
-    this.root.setScale(this.scale*(facing<0?-1:1),this.scale);
+    const naturalFacing=(this.art as (ArtObject&{naturalFacing?:number})|undefined)?.naturalFacing??1;
+    this.root.setScale(this.scale*(facing<0?-1:1)*naturalFacing,this.scale);
     if(!this.art)return;
     const clip=this.art.clips[action];
     if(!clip)throw new Error(`Missing art action: ${this.id}/${action}`);
     const duration=options.duration??clip.duration??(action==='grab'?RULES.captureTime:action==='dead'?RULES.enemyDeathDuration:action==='attack'||action==='heal'?RULES.attackPoseTime:action==='fall'?RULES.dropTime:action==='hit'||action==='carry-hit'?RULES.hitFlash:1);
     const t=options.progress??artPhase(clip,time-this.since,duration,options.phaseOffset);
-    this.pose=sampleArt(manifest,this.art.id,action,t,{hiddenSlots:options.shield===false?this.art.shieldSlots:undefined});
+    this.pose=sampleArt(manifest,this.art.id,action,t,{hiddenSlots:options.shield===false?this.art.shieldSlots:undefined,variant:options.shield===false?'unshielded':undefined});
     for(const state of this.pose.layers){
       const view=this.nodes.get(state.slot)!;
       const sprite=manifest.sprites[state.sprite];
@@ -113,6 +118,7 @@ export class ActorView {
   }
   eventPhase(action:string,event:string) {return this.art?.clips[action]?.events?.find(key=>key.event===event)?.t;}
   hasAction(action:string){return !!this.art?.clips[action];}
+  get facing(){return Math.sign(this.root.scaleX)*((this.art as (ArtObject&{naturalFacing?:number})|undefined)?.naturalFacing??1);}
   get bounds(){return this.root.getBounds();}
   destroy(){this.root.destroy(true);}
 }

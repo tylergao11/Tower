@@ -1,0 +1,160 @@
+{
+  "before": {
+    "runtimeFiles": 125,
+    "bytes": 12148266,
+    "images": 123,
+    "imageBytes": 11877802
+  },
+  "after": {
+    "runtimeFiles": 33,
+    "bytes": 3442199,
+    "images": 32,
+    "imageBytes": 3232458,
+    "preloadedAtlasBytes": 2571736,
+    "preloadedTextureMiB": 39.077239990234375
+  },
+  "removed": {
+    "files": 96,
+    "bytes": 13653546
+  },
+  "map": {
+    "width": 1672,
+    "height": 941,
+    "bytes": 375584
+  },
+  "packaging": "Vite production package generated; no browser or mobile acceptance run",
+  "files": [
+    {
+      "path": "assets/game/asset-manifest.json",
+      "bytes": 209741
+    },
+    {
+      "path": "assets/game/liubei-leisure-backdrop-v1.webp",
+      "bytes": 224838
+    },
+    {
+      "path": "assets/game/shu-camp-integrated.webp",
+      "bytes": 375584
+    },
+    {
+      "path": "assets/game/atlases/world-0.webp",
+      "bytes": 268996
+    },
+    {
+      "path": "assets/game/atlases/world-1.webp",
+      "bytes": 260808
+    },
+    {
+      "path": "assets/game/characters/b05-dancer.webp",
+      "bytes": 147590
+    },
+    {
+      "path": "assets/game/characters/e01.webp",
+      "bytes": 112946
+    },
+    {
+      "path": "assets/game/characters/e02.webp",
+      "bytes": 143532
+    },
+    {
+      "path": "assets/game/characters/e03.webp",
+      "bytes": 88842
+    },
+    {
+      "path": "assets/game/characters/e04.webp",
+      "bytes": 137952
+    },
+    {
+      "path": "assets/game/characters/e05.webp",
+      "bytes": 131180
+    },
+    {
+      "path": "assets/game/characters/e06.webp",
+      "bytes": 105330
+    },
+    {
+      "path": "assets/game/characters/e07.webp",
+      "bytes": 125128
+    },
+    {
+      "path": "assets/game/characters/h01.webp",
+      "bytes": 163908
+    },
+    {
+      "path": "assets/game/characters/h02.webp",
+      "bytes": 145412
+    },
+    {
+      "path": "assets/game/characters/h03.webp",
+      "bytes": 168018
+    },
+    {
+      "path": "assets/game/characters/l01.webp",
+      "bytes": 235032
+    },
+    {
+      "path": "assets/game/characters/s01.webp",
+      "bytes": 117602
+    },
+    {
+      "path": "assets/game/characters/s02.webp",
+      "bytes": 96376
+    },
+    {
+      "path": "assets/game/ui-redraw/banner.webp",
+      "bytes": 7930
+    },
+    {
+      "path": "assets/game/ui-redraw/button.webp",
+      "bytes": 6238
+    },
+    {
+      "path": "assets/game/ui-redraw/logo.webp",
+      "bytes": 41506
+    },
+    {
+      "path": "assets/game/ui-redraw/plaque.webp",
+      "bytes": 19298
+    },
+    {
+      "path": "assets/game/ui-redraw/recall.webp",
+      "bytes": 17424
+    },
+    {
+      "path": "assets/game/ui-redraw/shield.webp",
+      "bytes": 19624
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/card.webp",
+      "bytes": 8268
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/coin.webp",
+      "bytes": 3734
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/nameplate.webp",
+      "bytes": 9674
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/panel.webp",
+      "bytes": 18180
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/pause.webp",
+      "bytes": 5550
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/sound.webp",
+      "bytes": 5992
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/speech.webp",
+      "bytes": 11610
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/tray.webp",
+      "bytes": 8356
+    }
+  ]
+}

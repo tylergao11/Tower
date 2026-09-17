@@ -12,7 +12,7 @@ function gameAssets(): Plugin {
         if (/[?&]import(?:&|$)/.test(req.url || '')) return next();
         const file = resolve(root, '.' + decodeURIComponent((req.url || '/').split('?')[0]));
         if (!file.startsWith(root + sep) || !existsSync(file) || !statSync(file).isFile()) return next();
-        const types: Record<string, string> = { webp: 'image/webp', png: 'image/png', json: 'application/json', mp3: 'audio/mpeg', svg: 'image/svg+xml' };
+        const types: Record<string, string> = { webp: 'image/webp', png: 'image/png', json: 'application/json', mp3: 'audio/mpeg', woff2:'font/woff2', svg: 'image/svg+xml' };
         res.setHeader('Content-Type', types[file.split('.').pop() || ''] || 'application/octet-stream');
         res.end(readFileSync(file));
       });
@@ -29,4 +29,4 @@ function gameAssets(): Plugin {
   };
 }
 
-export default defineConfig({ base: './', plugins: [gameAssets()], server: { port: 5188, strictPort: true }, build: { chunkSizeWarningLimit: 1500 } });
+export default defineConfig({ base: './', plugins: [gameAssets()], server: { port: 5188, strictPort: true }, build: { assetsInlineLimit: 0, chunkSizeWarningLimit: 1500 } });

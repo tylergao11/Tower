@@ -1,0 +1,13 @@
+{
+  "characters": 14,
+  "poses": 172,
+  "sampledPoses": 1302,
+  "sourceBytes": 27450282,
+  "webpBytes": 1918848,
+  "initialCharacterBytes": 1441510,
+  "decodedBytes": 33554432,
+  "sourceReductionPercent": 93.01,
+  "oldWholeAtlasBytes": 3207732,
+  "atlasReductionPercent": 40.18,
+  "oldDecodedBytes": 54329344
+}

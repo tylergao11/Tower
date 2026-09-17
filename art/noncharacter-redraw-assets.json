@@ -1,0 +1,591 @@
+{
+  "description": "本轮新绘制的非人物美术。独立资源裁切，不改人物资源与现有动作清单。",
+  "groups": {
+    "mechanisms": {
+      "source": "art/source/noncharacter-redraw/mechanisms.png",
+      "grid": [
+        5,
+        2
+      ],
+      "entries": {
+        "G01": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G01.png",
+          "sourceRect": [
+            22,
+            107,
+            348,
+            237
+          ],
+          "width": 348,
+          "height": 237
+        },
+        "G02": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G02.png",
+          "sourceRect": [
+            370,
+            66,
+            440,
+            289
+          ],
+          "width": 440,
+          "height": 289
+        },
+        "G03": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G03.png",
+          "sourceRect": [
+            862,
+            22,
+            269,
+            343
+          ],
+          "width": 269,
+          "height": 343
+        },
+        "G04": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G04.png",
+          "sourceRect": [
+            1176,
+            65,
+            414,
+            295
+          ],
+          "width": 414,
+          "height": 295
+        },
+        "G05": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G05.png",
+          "sourceRect": [
+            1597,
+            51,
+            353,
+            326
+          ],
+          "width": 353,
+          "height": 326
+        },
+        "G06": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G06.png",
+          "sourceRect": [
+            27,
+            426,
+            347,
+            337
+          ],
+          "width": 347,
+          "height": 337
+        },
+        "G07": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G07.png",
+          "sourceRect": [
+            422,
+            510,
+            444,
+            216
+          ],
+          "width": 444,
+          "height": 216
+        },
+        "G08": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/G08.png",
+          "sourceRect": [
+            912,
+            382,
+            207,
+            381
+          ],
+          "width": 207,
+          "height": 381
+        },
+        "M01": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/M01.png",
+          "sourceRect": [
+            1213,
+            388,
+            283,
+            373
+          ],
+          "width": 283,
+          "height": 373
+        },
+        "M02": {
+          "path": "art/packed/noncharacter-redraw/mechanisms/M02.png",
+          "sourceRect": [
+            1552,
+            437,
+            406,
+            322
+          ],
+          "width": 406,
+          "height": 322
+        }
+      }
+    },
+    "ui": {
+      "source": "art/source/noncharacter-redraw/ui.png",
+      "grid": [
+        4,
+        2
+      ],
+      "entries": {
+        "panel": {
+          "path": "assets/game/noncharacter-redraw/ui/panel.webp",
+          "sourceRect": [
+            44,
+            142,
+            460,
+            294
+          ],
+          "width": 460,
+          "height": 294
+        },
+        "tray": {
+          "path": "assets/game/noncharacter-redraw/ui/tray.webp",
+          "sourceRect": [
+            531,
+            228,
+            552,
+            113
+          ],
+          "width": 552,
+          "height": 113
+        },
+        "card": {
+          "path": "assets/game/noncharacter-redraw/ui/card.webp",
+          "sourceRect": [
+            1122,
+            126,
+            214,
+            304
+          ],
+          "width": 214,
+          "height": 304
+        },
+        "speech": {
+          "path": "assets/game/noncharacter-redraw/ui/speech.webp",
+          "sourceRect": [
+            1376,
+            190,
+            359,
+            225
+          ],
+          "width": 359,
+          "height": 225
+        },
+        "nameplate": {
+          "path": "assets/game/noncharacter-redraw/ui/nameplate.webp",
+          "sourceRect": [
+            80,
+            598,
+            446,
+            143
+          ],
+          "width": 320,
+          "height": 103
+        },
+        "pause": {
+          "path": "assets/game/noncharacter-redraw/ui/pause.webp",
+          "sourceRect": [
+            636,
+            548,
+            232,
+            233
+          ],
+          "width": 143,
+          "height": 144
+        },
+        "sound": {
+          "path": "assets/game/noncharacter-redraw/ui/sound.webp",
+          "sourceRect": [
+            1016,
+            548,
+            244,
+            233
+          ],
+          "width": 144,
+          "height": 138
+        },
+        "coin": {
+          "path": "assets/game/noncharacter-redraw/ui/coin.webp",
+          "sourceRect": [
+            1424,
+            548,
+            236,
+            240
+          ],
+          "width": 79,
+          "height": 80
+        }
+      }
+    },
+    "effects": {
+      "source": "art/source/noncharacter-redraw/effects.png",
+      "grid": [
+        4,
+        4
+      ],
+      "entries": {
+        "arrow": {
+          "path": "art/packed/noncharacter-redraw/effects/arrow.png",
+          "sourceRect": [
+            29,
+            102,
+            290,
+            89
+          ],
+          "width": 290,
+          "height": 89
+        },
+        "poison-drop": {
+          "path": "art/packed/noncharacter-redraw/effects/poison-drop.png",
+          "sourceRect": [
+            429,
+            31,
+            93,
+            244
+          ],
+          "width": 93,
+          "height": 244
+        },
+        "poison-splash": {
+          "path": "art/packed/noncharacter-redraw/effects/poison-splash.png",
+          "sourceRect": [
+            663,
+            88,
+            252,
+            165
+          ],
+          "width": 252,
+          "height": 165
+        },
+        "wind": {
+          "path": "art/packed/noncharacter-redraw/effects/wind.png",
+          "sourceRect": [
+            972,
+            82,
+            261,
+            169
+          ],
+          "width": 261,
+          "height": 169
+        },
+        "hit": {
+          "path": "art/packed/noncharacter-redraw/effects/hit.png",
+          "sourceRect": [
+            42,
+            333,
+            244,
+            249
+          ],
+          "width": 244,
+          "height": 249
+        },
+        "block": {
+          "path": "art/packed/noncharacter-redraw/effects/block.png",
+          "sourceRect": [
+            401,
+            336,
+            200,
+            255
+          ],
+          "width": 200,
+          "height": 255
+        },
+        "dust": {
+          "path": "art/packed/noncharacter-redraw/effects/dust.png",
+          "sourceRect": [
+            651,
+            385,
+            286,
+            180
+          ],
+          "width": 286,
+          "height": 180
+        },
+        "wood": {
+          "path": "art/packed/noncharacter-redraw/effects/wood.png",
+          "sourceRect": [
+            1003,
+            348,
+            220,
+            218
+          ],
+          "width": 220,
+          "height": 218
+        },
+        "metal": {
+          "path": "art/packed/noncharacter-redraw/effects/metal.png",
+          "sourceRect": [
+            71,
+            661,
+            208,
+            208
+          ],
+          "width": 208,
+          "height": 208
+        },
+        "heal": {
+          "path": "art/packed/noncharacter-redraw/effects/heal.png",
+          "sourceRect": [
+            369,
+            643,
+            206,
+            213
+          ],
+          "width": 206,
+          "height": 213
+        },
+        "repair": {
+          "path": "art/packed/noncharacter-redraw/effects/repair.png",
+          "sourceRect": [
+            667,
+            674,
+            244,
+            199
+          ],
+          "width": 244,
+          "height": 199
+        },
+        "bag": {
+          "path": "art/packed/noncharacter-redraw/effects/bag.png",
+          "sourceRect": [
+            1011,
+            658,
+            217,
+            216
+          ],
+          "width": 217,
+          "height": 216
+        },
+        "rescue": {
+          "path": "art/packed/noncharacter-redraw/effects/rescue.png",
+          "sourceRect": [
+            34,
+            961,
+            272,
+            205
+          ],
+          "width": 272,
+          "height": 205
+        },
+        "shield": {
+          "path": "art/packed/noncharacter-redraw/effects/shield.png",
+          "sourceRect": [
+            351,
+            946,
+            261,
+            235
+          ],
+          "width": 261,
+          "height": 235
+        },
+        "shield-break": {
+          "path": "art/packed/noncharacter-redraw/effects/shield-break.png",
+          "sourceRect": [
+            673,
+            941,
+            235,
+            252
+          ],
+          "width": 235,
+          "height": 252
+        },
+        "return-trail": {
+          "path": "art/packed/noncharacter-redraw/effects/return-trail.png",
+          "sourceRect": [
+            990,
+            979,
+            240,
+            188
+          ],
+          "width": 240,
+          "height": 188
+        }
+      }
+    },
+    "parts": {
+      "source": "art/source/noncharacter-redraw/parts.png",
+      "grid": [
+        4,
+        4
+      ],
+      "entries": {
+        "G01-base": {
+          "path": "art/packed/noncharacter-redraw/parts/G01-base.png",
+          "sourceRect": [
+            8,
+            130,
+            363,
+            143
+          ],
+          "width": 363,
+          "height": 143
+        },
+        "G01-spikes": {
+          "path": "art/packed/noncharacter-redraw/parts/G01-spikes.png",
+          "sourceRect": [
+            406,
+            65,
+            291,
+            179
+          ],
+          "width": 291,
+          "height": 179
+        },
+        "G02-chassis": {
+          "path": "art/packed/noncharacter-redraw/parts/G02-chassis.png",
+          "sourceRect": [
+            734,
+            13,
+            342,
+            260
+          ],
+          "width": 342,
+          "height": 260
+        },
+        "G02-bow": {
+          "path": "art/packed/noncharacter-redraw/parts/G02-bow.png",
+          "sourceRect": [
+            1078,
+            74,
+            356,
+            138
+          ],
+          "width": 356,
+          "height": 138
+        },
+        "G03-mount": {
+          "path": "art/packed/noncharacter-redraw/parts/G03-mount.png",
+          "sourceRect": [
+            90,
+            338,
+            262,
+            180
+          ],
+          "width": 262,
+          "height": 180
+        },
+        "G03-jar": {
+          "path": "art/packed/noncharacter-redraw/parts/G03-jar.png",
+          "sourceRect": [
+            473,
+            288,
+            172,
+            274
+          ],
+          "width": 172,
+          "height": 274
+        },
+        "G05-housing": {
+          "path": "art/packed/noncharacter-redraw/parts/G05-housing.png",
+          "sourceRect": [
+            778,
+            282,
+            221,
+            288
+          ],
+          "width": 221,
+          "height": 288
+        },
+        "G05-fan": {
+          "path": "art/packed/noncharacter-redraw/parts/G05-fan.png",
+          "sourceRect": [
+            1167,
+            317,
+            199,
+            226
+          ],
+          "width": 199,
+          "height": 226
+        },
+        "G07-frame": {
+          "path": "art/packed/noncharacter-redraw/parts/G07-frame.png",
+          "sourceRect": [
+            22,
+            639,
+            351,
+            153
+          ],
+          "width": 351,
+          "height": 153
+        },
+        "G07-panel": {
+          "path": "art/packed/noncharacter-redraw/parts/G07-panel.png",
+          "sourceRect": [
+            394,
+            665,
+            339,
+            132
+          ],
+          "width": 339,
+          "height": 132
+        },
+        "G08-mount": {
+          "path": "art/packed/noncharacter-redraw/parts/G08-mount.png",
+          "sourceRect": [
+            783,
+            585,
+            236,
+            162
+          ],
+          "width": 236,
+          "height": 162
+        },
+        "G08-claw": {
+          "path": "art/packed/noncharacter-redraw/parts/G08-claw.png",
+          "sourceRect": [
+            1157,
+            600,
+            243,
+            210
+          ],
+          "width": 243,
+          "height": 210
+        },
+        "M01-mount": {
+          "path": "art/packed/noncharacter-redraw/parts/M01-mount.png",
+          "sourceRect": [
+            47,
+            840,
+            258,
+            166
+          ],
+          "width": 258,
+          "height": 166
+        },
+        "M01-hammer": {
+          "path": "art/packed/noncharacter-redraw/parts/M01-hammer.png",
+          "sourceRect": [
+            412,
+            868,
+            267,
+            171
+          ],
+          "width": 267,
+          "height": 171
+        },
+        "M02-cradle": {
+          "path": "art/packed/noncharacter-redraw/parts/M02-cradle.png",
+          "sourceRect": [
+            727,
+            817,
+            363,
+            247
+          ],
+          "width": 363,
+          "height": 247
+        },
+        "M02-log": {
+          "path": "art/packed/noncharacter-redraw/parts/M02-log.png",
+          "sourceRect": [
+            1121,
+            875,
+            303,
+            180
+          ],
+          "width": 303,
+          "height": 180
+        }
+      }
+    }
+  }
+}

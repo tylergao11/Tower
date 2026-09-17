@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#171c20" />
-  <title>新野</title>
+  <meta name="theme-color" content="#191613" />
+  <title>主公快跑 · 新野</title>
   <link rel="stylesheet" href="/src/boot.css" />
 </head>
 <body>
-  <div id="loading-screen" aria-live="polite"><div class="loading-content"><div class="loading-label">载入中</div><div class="loading-track" role="progressbar" aria-label="资源加载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div><div class="loading-percent">0%</div><button class="loading-retry" hidden>重试</button></div></div>
-  <main id="viewport"><div id="stage"><div id="game"></div><div id="ui"></div></div></main>
+  <main id="viewport"><div id="stage"><div id="game"></div><div id="ui"></div>
+  <div id="loading-screen" aria-live="polite" aria-label="载入中"><div class="loading-content"><img class="loading-logo" src="/assets/game/ui-redraw/logo.webp" alt="主公快跑，新野"><button class="loading-enter" aria-label="进入布防" hidden disabled><span>进入布防</span><i aria-hidden="true"></i></button><button class="loading-retry" aria-label="重试" hidden>重新载入</button><div class="loading-track" role="progressbar" aria-label="资源加载" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div><div class="loading-caption"><span>整备军械</span><strong>0%</strong></div></div></div>
+  </div></main>
   <script type="module" src="/src/boot.ts"></script>
 </body>
 </html>

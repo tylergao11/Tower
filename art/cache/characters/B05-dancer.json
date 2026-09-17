@@ -1,0 +1,346 @@
+{
+  "sourceHash": "8312fc5750aaf8f52026c4206918ab059010c8a7b82adc68066d56e51f49d1ac",
+  "settingsHash": "c0b5be77f695f857b184a6d6130fa037bf25e3f45a570b8d74bf75e1e4174ca6",
+  "file": {
+    "path": "assets/game/characters/b05-dancer.webp",
+    "width": 1024,
+    "height": 512,
+    "bytes": 147590,
+    "sha256": "b28be9ca8101a777d7c07633de82563ea21bae9785b484112a25883359ac04af",
+    "hasAlpha": true,
+    "source": "art/source/characters/B05-dancer/poses.png"
+  },
+  "sprites": {
+    "B05-dancer/dance-0": {
+      "atlas": "B05-dancer",
+      "rect": [
+        0,
+        0,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.1640625
+        ],
+        "grip": [
+          0.5,
+          0.1484375
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-1": {
+      "atlas": "B05-dancer",
+      "rect": [
+        256,
+        0,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.1015625
+        ],
+        "grip": [
+          0.5,
+          0.0859375
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-2": {
+      "atlas": "B05-dancer",
+      "rect": [
+        512,
+        0,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.10546875
+        ],
+        "grip": [
+          0.5,
+          0.08984375
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-3": {
+      "atlas": "B05-dancer",
+      "rect": [
+        768,
+        0,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.1875
+        ],
+        "grip": [
+          0.5,
+          0.171875
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-4": {
+      "atlas": "B05-dancer",
+      "rect": [
+        0,
+        256,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.1171875
+        ],
+        "grip": [
+          0.5,
+          0.1015625
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-5": {
+      "atlas": "B05-dancer",
+      "rect": [
+        256,
+        256,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.123046875
+        ],
+        "grip": [
+          0.5,
+          0.107421875
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-6": {
+      "atlas": "B05-dancer",
+      "rect": [
+        512,
+        256,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.166015625
+        ],
+        "grip": [
+          0.5,
+          0.150390625
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    },
+    "B05-dancer/dance-7": {
+      "atlas": "B05-dancer",
+      "rect": [
+        768,
+        256,
+        256,
+        256
+      ],
+      "sourceSize": [
+        512,
+        512
+      ],
+      "joints": {
+        "carry": [
+          0.5,
+          0.173828125
+        ],
+        "grip": [
+          0.5,
+          0.158203125
+        ],
+        "carried": [
+          0.5,
+          0.517578125
+        ]
+      }
+    }
+  },
+  "bounds": {
+    "dance-0": {
+      "source": [
+        14,
+        40,
+        417,
+        397
+      ],
+      "normalized": [
+        37,
+        68,
+        439,
+        418
+      ]
+    },
+    "dance-1": {
+      "source": [
+        475,
+        12,
+        426,
+        427
+      ],
+      "normalized": [
+        32,
+        36,
+        449,
+        450
+      ]
+    },
+    "dance-2": {
+      "source": [
+        930,
+        13,
+        378,
+        425
+      ],
+      "normalized": [
+        57,
+        38,
+        398,
+        448
+      ]
+    },
+    "dance-3": {
+      "source": [
+        1378,
+        54,
+        387,
+        385
+      ],
+      "normalized": [
+        52,
+        80,
+        408,
+        406
+      ]
+    },
+    "dance-4": {
+      "source": [
+        13,
+        450,
+        426,
+        419
+      ],
+      "normalized": [
+        32,
+        44,
+        449,
+        442
+      ]
+    },
+    "dance-5": {
+      "source": [
+        495,
+        452,
+        431,
+        417
+      ],
+      "normalized": [
+        29,
+        47,
+        454,
+        439
+      ]
+    },
+    "dance-6": {
+      "source": [
+        917,
+        474,
+        396,
+        396
+      ],
+      "normalized": [
+        48,
+        69,
+        417,
+        417
+      ]
+    },
+    "dance-7": {
+      "source": [
+        1338,
+        477,
+        422,
+        392
+      ],
+      "normalized": [
+        34,
+        73,
+        445,
+        413
+      ]
+    }
+  },
+  "commonScale": 1.053864168618267
+}

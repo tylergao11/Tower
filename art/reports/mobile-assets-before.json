@@ -1,0 +1,505 @@
+{
+  "files": [
+    {
+      "path": "assets/game/actors-rigs.json",
+      "bytes": 22278
+    },
+    {
+      "path": "assets/game/actors-v2.webp",
+      "bytes": 423078
+    },
+    {
+      "path": "assets/game/asset-manifest.json",
+      "bytes": 248186
+    },
+    {
+      "path": "assets/game/b05-dancer-camp-dancer-whole-v1.webp",
+      "bytes": 173632
+    },
+    {
+      "path": "assets/game/battle-effects-v2.webp",
+      "bytes": 91784
+    },
+    {
+      "path": "assets/game/camp-back-v1.webp",
+      "bytes": 3678
+    },
+    {
+      "path": "assets/game/camp-card-v1.webp",
+      "bytes": 6702
+    },
+    {
+      "path": "assets/game/camp-city-outskirts-v1.webp",
+      "bytes": 642574
+    },
+    {
+      "path": "assets/game/camp-coin-v1.webp",
+      "bytes": 3458
+    },
+    {
+      "path": "assets/game/camp-dancer-frames-v1.webp",
+      "bytes": 150694
+    },
+    {
+      "path": "assets/game/camp-gold-v1.webp",
+      "bytes": 11496
+    },
+    {
+      "path": "assets/game/camp-ivory-v1.webp",
+      "bytes": 5920
+    },
+    {
+      "path": "assets/game/camp-paper-v1.webp",
+      "bytes": 13512
+    },
+    {
+      "path": "assets/game/cao-archer-parts-v1.webp",
+      "bytes": 55794
+    },
+    {
+      "path": "assets/game/cao-commanders-v1.webp",
+      "bytes": 150386
+    },
+    {
+      "path": "assets/game/cao-engineer-parts-v1.webp",
+      "bytes": 64150
+    },
+    {
+      "path": "assets/game/cao-footman-parts-v1.webp",
+      "bytes": 56156
+    },
+    {
+      "path": "assets/game/cao-scout-parts-v1.webp",
+      "bytes": 78568
+    },
+    {
+      "path": "assets/game/cao-shieldman-parts-v1.webp",
+      "bytes": 62266
+    },
+    {
+      "path": "assets/game/cao-tiger-guard-parts-v1.webp",
+      "bytes": 66314
+    },
+    {
+      "path": "assets/game/cao-troops-v3.webp",
+      "bytes": 368150
+    },
+    {
+      "path": "assets/game/caohong-parts-v1.webp",
+      "bytes": 64192
+    },
+    {
+      "path": "assets/game/e01-cao-footman-whole-v1.webp",
+      "bytes": 197944
+    },
+    {
+      "path": "assets/game/e02-cao-shieldman-whole-v1.webp",
+      "bytes": 256586
+    },
+    {
+      "path": "assets/game/e03-cao-engineer-whole-v1.webp",
+      "bytes": 158912
+    },
+    {
+      "path": "assets/game/e04-cao-scout-whole-v1.webp",
+      "bytes": 247048
+    },
+    {
+      "path": "assets/game/e05-cao-archer-whole-v1.webp",
+      "bytes": 234560
+    },
+    {
+      "path": "assets/game/e06-cao-tiger-guard-whole-v1.webp",
+      "bytes": 194186
+    },
+    {
+      "path": "assets/game/e07-cao-hong-whole-v1.webp",
+      "bytes": 227860
+    },
+    {
+      "path": "assets/game/effects-v1.webp",
+      "bytes": 318290
+    },
+    {
+      "path": "assets/game/gate-door-left-v1.webp",
+      "bytes": 16112
+    },
+    {
+      "path": "assets/game/gate-door-right-v1.webp",
+      "bytes": 16124
+    },
+    {
+      "path": "assets/game/h01-guanyu-whole-v1.webp",
+      "bytes": 268564
+    },
+    {
+      "path": "assets/game/h02-zhangfei-whole-v1.webp",
+      "bytes": 236528
+    },
+    {
+      "path": "assets/game/h03-zhugeliang-whole-v1.webp",
+      "bytes": 270190
+    },
+    {
+      "path": "assets/game/interface-panels-v2.webp",
+      "bytes": 72392
+    },
+    {
+      "path": "assets/game/l01-liubei-whole-v1.webp",
+      "bytes": 355422
+    },
+    {
+      "path": "assets/game/liubei-legs-v2.webp",
+      "bytes": 13858
+    },
+    {
+      "path": "assets/game/liubei-leisure-backdrop-v1.webp",
+      "bytes": 140018
+    },
+    {
+      "path": "assets/game/liubei-leisure-parts-v1.webp",
+      "bytes": 126374
+    },
+    {
+      "path": "assets/game/liubei-poses-v1.webp",
+      "bytes": 162018
+    },
+    {
+      "path": "assets/game/mechanism-states-v1.webp",
+      "bytes": 473404
+    },
+    {
+      "path": "assets/game/mechanisms-control-heavy-v1.webp",
+      "bytes": 149000
+    },
+    {
+      "path": "assets/game/mechanisms-economy-ranged-v1.webp",
+      "bytes": 179664
+    },
+    {
+      "path": "assets/game/props.webp",
+      "bytes": 40528
+    },
+    {
+      "path": "assets/game/s01-shu-guard-whole-v1.webp",
+      "bytes": 215420
+    },
+    {
+      "path": "assets/game/s02-shu-medic-whole-v1.webp",
+      "bytes": 170880
+    },
+    {
+      "path": "assets/game/shu-camp-integrated.webp",
+      "bytes": 483984
+    },
+    {
+      "path": "assets/game/shu-devices-v3.webp",
+      "bytes": 86246
+    },
+    {
+      "path": "assets/game/shu-guard-parts-v1.webp",
+      "bytes": 57806
+    },
+    {
+      "path": "assets/game/shu-infantry-v1.webp",
+      "bytes": 227570
+    },
+    {
+      "path": "assets/game/shu-medic-parts-v1.webp",
+      "bytes": 66056
+    },
+    {
+      "path": "assets/game/status-icons-v2.webp",
+      "bytes": 36454
+    },
+    {
+      "path": "assets/game/xinye-clean-backdrop-v2.webp",
+      "bytes": 254808
+    },
+    {
+      "path": "assets/game/xinye-scene-parts-v2.webp",
+      "bytes": 204878
+    },
+    {
+      "path": "assets/game/characters/b05-dancer.webp",
+      "bytes": 147590
+    },
+    {
+      "path": "assets/game/characters/e01.webp",
+      "bytes": 112946
+    },
+    {
+      "path": "assets/game/characters/e02.webp",
+      "bytes": 143532
+    },
+    {
+      "path": "assets/game/characters/e03.webp",
+      "bytes": 88842
+    },
+    {
+      "path": "assets/game/characters/e04.webp",
+      "bytes": 137952
+    },
+    {
+      "path": "assets/game/characters/e05.webp",
+      "bytes": 131180
+    },
+    {
+      "path": "assets/game/characters/e06.webp",
+      "bytes": 105330
+    },
+    {
+      "path": "assets/game/characters/e07.webp",
+      "bytes": 125128
+    },
+    {
+      "path": "assets/game/characters/h01.webp",
+      "bytes": 163908
+    },
+    {
+      "path": "assets/game/characters/h02.webp",
+      "bytes": 145412
+    },
+    {
+      "path": "assets/game/characters/h03.webp",
+      "bytes": 168018
+    },
+    {
+      "path": "assets/game/characters/l01.webp",
+      "bytes": 235032
+    },
+    {
+      "path": "assets/game/characters/s01.webp",
+      "bytes": 117602
+    },
+    {
+      "path": "assets/game/characters/s02.webp",
+      "bytes": 96376
+    },
+    {
+      "path": "assets/game/ui-redraw/banner.webp",
+      "bytes": 36032
+    },
+    {
+      "path": "assets/game/ui-redraw/button.webp",
+      "bytes": 14868
+    },
+    {
+      "path": "assets/game/ui-redraw/logo.webp",
+      "bytes": 47558
+    },
+    {
+      "path": "assets/game/ui-redraw/plaque.webp",
+      "bytes": 23432
+    },
+    {
+      "path": "assets/game/ui-redraw/recall.webp",
+      "bytes": 51922
+    },
+    {
+      "path": "assets/game/ui-redraw/shield.webp",
+      "bytes": 59416
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/arrow.webp",
+      "bytes": 12734
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/bag.webp",
+      "bytes": 18436
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/block.webp",
+      "bytes": 20380
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/dust.webp",
+      "bytes": 20516
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/heal.webp",
+      "bytes": 12124
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/hit.webp",
+      "bytes": 14806
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/metal.webp",
+      "bytes": 16048
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/poison-drop.webp",
+      "bytes": 8210
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/poison-splash.webp",
+      "bytes": 16024
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/repair.webp",
+      "bytes": 22596
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/rescue.webp",
+      "bytes": 22698
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/return-trail.webp",
+      "bytes": 16436
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/shield-break.webp",
+      "bytes": 24762
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/shield.webp",
+      "bytes": 25404
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/wind.webp",
+      "bytes": 20688
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/effects/wood.webp",
+      "bytes": 19558
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G01.webp",
+      "bytes": 33090
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G02.webp",
+      "bytes": 48492
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G03.webp",
+      "bytes": 31868
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G04.webp",
+      "bytes": 40194
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G05.webp",
+      "bytes": 31390
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G06.webp",
+      "bytes": 46968
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G07.webp",
+      "bytes": 28102
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/G08.webp",
+      "bytes": 26742
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/M01.webp",
+      "bytes": 31366
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/mechanisms/M02.webp",
+      "bytes": 42584
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G01-base.webp",
+      "bytes": 18346
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G01-spikes.webp",
+      "bytes": 26984
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G02-bow.webp",
+      "bytes": 17492
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G02-chassis.webp",
+      "bytes": 28390
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G03-jar.webp",
+      "bytes": 16756
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G03-mount.webp",
+      "bytes": 12738
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G05-fan.webp",
+      "bytes": 14704
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G05-housing.webp",
+      "bytes": 18918
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G07-frame.webp",
+      "bytes": 17726
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G07-panel.webp",
+      "bytes": 17192
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G08-claw.webp",
+      "bytes": 16030
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/G08-mount.webp",
+      "bytes": 15002
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/M01-hammer.webp",
+      "bytes": 16846
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/M01-mount.webp",
+      "bytes": 14912
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/M02-cradle.webp",
+      "bytes": 29378
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/parts/M02-log.webp",
+      "bytes": 20390
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/card.webp",
+      "bytes": 10370
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/coin.webp",
+      "bytes": 18122
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/nameplate.webp",
+      "bytes": 15974
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/panel.webp",
+      "bytes": 23640
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/pause.webp",
+      "bytes": 12610
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/sound.webp",
+      "bytes": 13808
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/speech.webp",
+      "bytes": 14260
+    },
+    {
+      "path": "assets/game/noncharacter-redraw/ui/tray.webp",
+      "bytes": 10734
+    }
+  ],
+  "totalBytes": 12148266
+}

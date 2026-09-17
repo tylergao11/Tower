@@ -1,4 +1,8 @@
-import { CARD, LEVEL, VIEW } from './config';
+import { CARD, LEVEL } from './config';
+import bgmUrl from '../assets/audio/liu-run-bgm-v1.mp3';
+import { GameMusic } from './audio/GameMusic';
+
+export const BGM_BYTES=947053;
 
 interface Save { deck:string[]; cleared:boolean; gold:boolean }
 const key='tower:'+LEVEL.id;
@@ -7,32 +11,41 @@ export function loadSave():Save {
     const value=JSON.parse(localStorage.getItem(key)||'null');
     if(value&&Array.isArray(value.deck)){
       const deck=[...new Set<string>(value.deck.filter((id:unknown):id is string=>typeof id==='string'&&Object.hasOwn(CARD,id)))];
-      return {deck:deck.length===LEVEL.deckSize?deck:[...LEVEL.defaultDeck],cleared:value.cleared===true,gold:value.gold===true};
+      const oldDefault=['G01','G02','G04','G05','G06','G07','M01','S01'];
+      const wasOldDefault=deck.length===oldDefault.length&&deck.every(id=>oldDefault.includes(id));
+      return {deck:deck.length===LEVEL.deckSize&&!wasOldDefault&&LEVEL.requiredCards.every(id=>deck.includes(id))?deck:[...LEVEL.defaultDeck],cleared:value.cleared===true,gold:value.gold===true};
     }
   } catch { /* A blocked store does not prevent playing. */ }
   return {deck:[...LEVEL.defaultDeck],cleared:false,gold:false};
 }
 export function saveProgress(value:Save) {try {localStorage.setItem(key,JSON.stringify(value));} catch { /* Session play remains available. */ }}
 
-export function fitStage() {
-  const viewport=document.querySelector<HTMLElement>('#viewport')!;
-  const stage=document.querySelector<HTMLElement>('#stage')!;
-  const resize=()=>{
-    const box=viewport.getBoundingClientRect();
-    const scale=Math.min(box.width/VIEW.width,box.height/VIEW.height);
-    stage.style.setProperty('--fit',String(scale));
-    window.dispatchEvent(new CustomEvent('stage-resize'));
-  };
-  new ResizeObserver(resize).observe(viewport);resize();
-}
-
 export class AudioPlayer {
-  enabled=true;
-  private context?:AudioContext;
+  private soundEnabled=true;
+  private music=new GameMusic();
   private last=0;
-  unlock() {if(!this.context)this.context=new AudioContext();void this.context.resume();}
+  get enabled(){return this.soundEnabled;}
+  set enabled(value:boolean){this.soundEnabled=value;if(!value)this.music.disable();}
+  async prepare(progress:(value:number)=>void){
+    const response=await fetch(bgmUrl);
+    if(!response.ok)throw new Error(`Music download failed: ${response.status}`);
+    if(response.body){
+      const reader=response.body.getReader(),parts:ArrayBuffer[]=[];
+      const total=Number(response.headers.get('content-length'))||BGM_BYTES;let loaded=0;
+      for(;;){const {done,value}=await reader.read();if(done)break;parts.push(Uint8Array.from(value).buffer);loaded+=value.byteLength;progress(loaded/total);}
+      this.music.prepare(new Blob(parts,{type:'audio/mpeg'}));
+    }else this.music.prepare(await response.blob());
+    progress(1);
+  }
+  setActive(active:boolean){this.music.setActive(active);}
+  unlock(){
+    if(!this.enabled||document.hidden)return;
+    void this.music.unlock().catch(()=>{});
+    if(this.music.ready)void this.music.enable().catch(()=>{});
+  }
+  destroy(){this.music.destroy();}
   play(kind:string) {
-    const context=this.context;
+    const context=this.music.context;
     if(!this.enabled||!context||context.state!=='running'||context.currentTime-this.last<.075)return;
     this.last=context.currentTime;
     const oscillator=context.createOscillator(),gain=context.createGain();
