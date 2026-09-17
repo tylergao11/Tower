@@ -1,0 +1,21 @@
+/* Panels and icons are cropped from the shared art atlas at load time. */
+button{background:var(--art-ivory-button) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;color:#342719}
+button.primary{background:var(--art-gold-button) center/100% 100% no-repeat;border:0;color:#342416}
+.topbar{background:var(--art-hud-bar) center/100% 100% no-repeat;border:0;box-shadow:none;padding-inline:38px}
+.panel{background:var(--art-panel) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;color:#3c3024;padding:64px 65px}
+.panel h1,.panel small,.selection header>span,.selection-footer p,.enemy-guide,.results b{color:#3e3021}
+.selection-footer p small,.results span{color:#675241}
+.selection header{border-color:#826a4b55}.selection{width:1250px;max-height:860px}
+.card{background:var(--art-card) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0}
+.card.chosen{border:0;box-shadow:none;filter:drop-shadow(0 0 5px #ffdc74)}
+.card.chosen:after{content:"";position:absolute;inset:8px;border:2px solid #dc9d34;pointer-events:none}
+.card-name{background:#ead9b6d9;width:85%;font-size:19px}.card-price{background:transparent;color:#3a2816;display:flex;align-items:center;justify-content:center;gap:3px;bottom:2px}
+.card-art{top:-7px;left:14px;width:114px;height:98px}.selection .card-art{top:-6px;left:8%;width:84%;height:127px}
+.ui-icon{width:27px;height:27px;object-fit:contain;vertical-align:middle;pointer-events:none}.card-price .ui-icon{width:19px;height:19px}
+.top-actions .ui-icon{width:32px;height:32px}.emergency button{background:var(--art-card) center/100% 100% no-repeat;border:0;font-size:24px;gap:0;color:#35281b;position:relative;padding:8px}
+.emergency .ui-icon{width:45px;height:45px}.emergency small{color:#5b3e25;font-size:17px;position:absolute;right:18px;top:14px}
+#deck-bar{background:#171c1df0}.gold-seal .ui-icon{width:80px;height:80px;display:block;margin:auto}
+#toast{background:var(--art-warning-bar) center/100% 100% no-repeat;box-shadow:none;padding:20px 65px}
+.opening-ui{position:absolute;inset:0;z-index:3;pointer-events:none}.opening-dialogue{position:absolute;width:440px;padding:32px 42px;background:var(--art-panel) center/100% 100% no-repeat;color:#34291c;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;text-align:center}
+.opening-dialogue small{font-size:21px;letter-spacing:5px;color:#755633}.opening-dialogue p{font-family:"Microsoft YaHei",sans-serif;font-size:30px;font-weight:bold;margin:9px 0;white-space:nowrap}
+.opening-ui.speaking .opening-dialogue{opacity:1;transform:translateY(0)}.opening-skip{position:absolute;right:45px;bottom:30px;padding:18px 36px;font-size:23px;opacity:0;pointer-events:none;transition:opacity .3s}.opening-ui.can-skip .opening-skip{opacity:1;pointer-events:auto}

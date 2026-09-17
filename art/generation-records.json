@@ -1,0 +1,524 @@
+{
+  "tool": "built-in image_gen",
+  "strategy": "layered-parts-with-sparse-keyframes",
+  "jobs": [
+    {
+      "id": "UI-ICONS",
+      "name": "status-icons-v2",
+      "source": "art/source/ui/status-icons-v2.png",
+      "grid": [
+        4,
+        4
+      ],
+      "runtimeCell": 128,
+      "cells": [
+        "protect",
+        "return",
+        "gold-seal",
+        "armor",
+        "shield",
+        "grab",
+        "rescue",
+        "floor",
+        "wall",
+        "ceiling",
+        "coin",
+        "pause",
+        "play",
+        "arrow",
+        "close",
+        "warning"
+      ],
+      "reference": "D:/Tower/assets/game/props.webp",
+      "prompt": "Game UI pictogram sprite atlas, TRUE RGBA transparent background,4 columns x4 rows,16 equal square cells, square canvas. Rich hand-painted Three Kingdoms wood/bronze cloth textures and thick dark outlines like reference, simple silhouettes readable at32px. Each ONE isolated symbol, no card borders, no labels, NO letters, NO numbers, NO Chinese writing, no checkerboard. Consistent light source, warm bronze/gold with jade green healing and restrained red alerts.\nRowmajor exact icons: 0 protective GOLD SHIELD with jade center and wings;1 green circular RETURN ARROW around small command tent;2 golden square imperial SEAL with simple dragon-shaped knob, NO writing;3 dark iron CHEST ARMOR;4 round WOODEN SHIELD with iron rim;5 open GRABBING HAND wearing red cuff;6 kneeling tiny green-robed silhouette encircled by rescue glow;7 floor installation plank and downward peg;8 wall installation stonewall with horizontal iron bracket;9 ceiling installation overhead beam with hanging hook;10 bronze square-hole COIN;11 two ivory PAUSE BARS;12 ivory PLAY TRIANGLE;13 gold directional ARROW right;14 ivory CLOSE X;15 red WARNING diamond with gold flame silhouette.\nGenerous 12% transparent margins. No photoreal, no flat generic SVG.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-46f273ca-4d9d-45d2-b7b6-894f98653b08.png"
+    },
+    {
+      "id": "UI-PANELS",
+      "name": "interface-panels-v2",
+      "source": "art/source/ui/interface-panels-v2.png",
+      "grid": [
+        3,
+        2
+      ],
+      "runtimeCell": 384,
+      "cells": [
+        "card",
+        "panel",
+        "gold-button",
+        "ivory-button",
+        "hud-bar",
+        "warning-bar"
+      ],
+      "reference": "D:/Tower/assets/game/props.webp",
+      "prompt": "Production UI COMPONENT SHEET, true transparent RGBA PNG,3 equal columns x2 equal rows, six separate isolated objects, no captions text logos or characters, no grid lines, no checkerboard background. Match rich outlined hand-painted Three Kingdoms game style: parchment, dark carved wood, restrained bronze gold, jade green. Thick clean dark outlines, ornate edges but quiet blank centers.\nRow1 col1: tall vertical blank parchment CARD FRAME with dark wooden rim and tiny gold corners, empty parchment face, aspectratio0.64:1.\nRow1 col2: large broad blank parchment POPUP PANEL with rolled corners, empty paper center, aspect1.35:1.\nRow1 col3: gold rectangular BUTTON plate with dark wood rim and brass corner fittings, empty center, aspect3.2:1.\nRow2 col1: ivory parchment rectangular BUTTON plate with same dark wood rim, aspect3.2:1.\nRow2 col2: horizontal deep jade-green HUD BAR backed with dark wood and restrained gold rim, empty center, aspect4:1.\nRow2 col3: horizontal red cloth WARNING STRIP backed by rough wood, empty middle, aspect4:1.\nAbsolutely no lettering or symbols. Fully separated elements with ample clear alpha margin. Paint edge antialias into transparency, no baked background colors.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-881bde62-d611-4381-a75d-b67cbe274167.png"
+    },
+    {
+      "id": "B05-BACKDROP",
+      "name": "liubei-leisure-backdrop-v1",
+      "source": "art/source/B05/liubei-leisure-backdrop-v1.png",
+      "kind": "plate",
+      "reference": "D:/Tower/assets/game/camp-city-outskirts-v1.webp",
+      "prompt": "Create a finished reusable EMPTY theatrical BACKGROUND PLATE for Liu Bei relaxing and watching dancers in a Three Kingdoms cartoon game. Reference is STYLE and MATERIAL language only. Landscape16:9 ideally2048x1152. No people, no chairs, no captions, no text, no UI. Rich hand-painted comic style with expressive dark outlines, exaggerated chunky wood/stone/canvas, detailed edges and calm readable center.\nScene: open-front spacious ivory canvas command pavilion at sunset, moss-green cloth trim, heavy timber columns at far left/right, dignified informal military camp. The upper canopy and draped roof frame the picture. Behind center are distant Chinese tiled roofs, forested hills and warm evening sky. RIGHT third shows inside pavilion with jade cloth, ochre cushions along back wall and EMPTY PLACE for reclining chaise. LEFT/CENTER clear empty timber dance floor with subdued woven rug. Single warm brass lantern at edges. Continuous ground plane around y=82%. Furniture and props stay BEHIND y=74%, so foreground dancer feet and chair remain readable. Golden amber light, cool blue green distance, cozy warm timber.\nNOT a crowded palace, not photoreal, not3D, not pastel. No words or writing. All human figures will be separate animated sprites, do not paint anyone here.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-c1944dda-909a-4c2b-96ec-474600b1a6ca.png"
+    },
+    {
+      "id": "E03",
+      "name": "cao-engineer-parts-v1",
+      "source": "art/source/characters/E03-cao-engineer-parts-v1.png",
+      "reference": "D:/Tower/assets/game/actors-v2.webp",
+      "spec": "NEW CHARACTER: Cao siege sabotage engineer, adult stocky man with leather cap over messy hair, dark gray and red military clothes, reinforced leather apron, distinct brown tool backpack and brass buckles. Friendly comic villain, strong forearms. No shield, no plume. Cell7 a BIG IRON DISMANTLING HAMMER with wood shaft. Cell8 tool backpack and exposed crowbar bound together. Cell4 front working arm for striking and cell9 supporting arm genuinely different shapes.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nNEW CHARACTER: Cao siege sabotage engineer, adult stocky man with leather cap over messy hair, dark gray and red military clothes, reinforced leather apron, distinct brown tool backpack and brass buckles. Friendly comic villain, strong forearms. No shield, no plume. Cell7 a BIG IRON DISMANTLING HAMMER with wood shaft. Cell8 tool backpack and exposed crowbar bound together. Cell4 front working arm for striking and cell9 supporting arm genuinely different shapes.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-9499aefe-9527-4e57-954c-ba0c276f3e45.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "E05",
+      "name": "cao-archer-parts-v1",
+      "source": "art/source/characters/E05-cao-archer-parts-v1.png",
+      "reference": "D:/Tower/assets/game/cao-troops-v3.webp",
+      "spec": "CHARACTER: match Cao archer TOP ROW SECOND reference character: dark gray metal helmet with RED plume, red scarf, gray clothes, light armor, slim moustached man. Cell7 is a CURVED WOODEN BOW WITHOUT STRING. Cell8 is one straight wooden ARROW pointing RIGHT. Cell3 arm extended straight to hold bow. Cell4 elbow pulled back, hand at cheek for pulling string. Cell9 carrying arm supporting a person. Cell10 open grabbing arm. Do not bake a bow or arrow into any detached arm. Bowstring will be drawn dynamically.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nCHARACTER: match Cao archer TOP ROW SECOND reference character: dark gray metal helmet with RED plume, red scarf, gray clothes, light armor, slim moustached man. Cell7 is a CURVED WOODEN BOW WITHOUT STRING. Cell8 is one straight wooden ARROW pointing RIGHT. Cell3 arm extended straight to hold bow. Cell4 elbow pulled back, hand at cheek for pulling string. Cell9 carrying arm supporting a person. Cell10 open grabbing arm. Do not bake a bow or arrow into any detached arm. Bowstring will be drawn dynamically.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-2e5ad31c-7ef3-44c7-919e-8704aa923c71.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "S02",
+      "name": "shu-medic-parts-v1",
+      "source": "art/source/characters/S02-shu-medic-parts-v1.png",
+      "reference": "D:/Tower/assets/game/shu-infantry-v1.webp",
+      "spec": "NEW CHARACTER: SHU army physician and repair artisan, mature slim kindly man with small moustache, cloth green headwrap no helmet, layered moss green robe and brown belt, square wood medicine chest strapped to his back, small tool pouch. Readable healer silhouette, no shield or armor. Cell7 a small BRONZE MEDICINE VIAL, cell8 small WOODEN REPAIR MALLET with pouch. Cell3 relaxed back arm, cell4 offering front hand, cell9 bent arm bringing medicine toward his own chest, cell10 extended administering-medicine open hand. Keep medicine box built into torso shoulder straps, small and legible.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nNEW CHARACTER: SHU army physician and repair artisan, mature slim kindly man with small moustache, cloth green headwrap no helmet, layered moss green robe and brown belt, square wood medicine chest strapped to his back, small tool pouch. Readable healer silhouette, no shield or armor. Cell7 a small BRONZE MEDICINE VIAL, cell8 small WOODEN REPAIR MALLET with pouch. Cell3 relaxed back arm, cell4 offering front hand, cell9 bent arm bringing medicine toward his own chest, cell10 extended administering-medicine open hand. Keep medicine box built into torso shoulder straps, small and legible.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-371f9ddc-df0b-48be-9f16-383fda729a3a.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "MX-A",
+      "name": "mechanisms-economy-ranged-v1",
+      "source": "art/source/mechanisms/mechanisms-economy-ranged-v1.png",
+      "grid": [
+        4,
+        5
+      ],
+      "cells": [
+        "G01-base",
+        "G01-spikes",
+        "G01-low-spikes",
+        "G01-broken",
+        "G02-base",
+        "G02-bow",
+        "G02-bolt",
+        "G02-broken",
+        "G03-bracket",
+        "G03-pot",
+        "G03-lid",
+        "G03-broken",
+        "G04-base",
+        "G04-bag",
+        "G04-drawer",
+        "G04-broken",
+        "G05-base",
+        "G05-fan",
+        "G05-vent",
+        "G05-broken"
+      ],
+      "reference": "D:/Tower/assets/game/shu-devices-v3.webp",
+      "prompt": "Production TRANSPARENT RGBA PNG game mechanism COMPONENT atlas, FOUR columns x FIVE rows, 20 equal square cells, 4:5 portrait aspect, ideally 2048x2560. Exactly ONE separate isolated component in each cell with clean transparent margins, no overlap, no background, no floor, no checkerboard, no labels or text. Side view 2.5D matching the reference: chunky dark brown outlines, hand-painted woodgrain, brass, dark iron, moss green Shu army accent. Art must read at 80px game size. Fully render hidden surfaces. Components in same row are parts of ONE mechanism; do NOT put a whole assembled machine in any cell. Do not add characters.\nROW 1 SPIKE TRAP: c1 recessed flat rectangular wooden floor frame with empty narrow slots, no spikes; c2 independent BANK OF FIVE vertical sharp iron spikes connected by a horizontal crosspiece; c3 same bank mostly retracted, short spike tips; c4 broken wooden floor frame with splintered corners.\nROW 2 REPEATING CROSSBOW: c1 wheeled green wooden low chassis and rotating brass mount WITHOUT bow/arrow; c2 independent horizontal curved crossbow arms with center rail pointed RIGHT, WITHOUT string or arrow; c3 one crossbow bolt pointing RIGHT; c4 damaged cracked chassis WITHOUT bow.\nROW 3 HANGING POISON JAR: c1 wooden OVERHEAD bracket with two short rope loops, NO jar; c2 green glazed bulbous poison jar with narrow pouring spout pointing straight DOWN, jade toxic glow at nozzle, NO support; c3 separate matching pottery lid; c4 broken green pottery shards, isolated compact cluster.\nROW 4 SUPPLY ACCOUNTANT: c1 one-slot-wide modest wooden counter with ledger and abacus but NO text/numbers, NO tent, NO coinsack; c2 tan cloth money sack overflowing three ancient coins; c3 isolated small pull-out wooden storage drawer, open empty; c4 damaged same counter with split planks and crumpled ledger.\nROW 5 COLD WIND MACHINE: c1 green-painted wooden wall-mounted square bellows housing with EMPTY circular opening facing RIGHT/forward, NO fan; c2 independent pale bronze six-blade radial fan wheel, face visible; c3 separate short metal vent collar with frost on lip; c4 cracked disabled same empty housing, dark stopped machine.\nNo spell text, no calligraphy, no scenery, genuinely transparent background.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-b582cdad-21a2-42d9-9560-7e8ccd6240bf.png"
+    },
+    {
+      "id": "MX-B",
+      "name": "mechanisms-control-heavy-v1",
+      "source": "art/source/mechanisms/mechanisms-control-heavy-v1.png",
+      "grid": [
+        4,
+        5
+      ],
+      "cells": [
+        "G06-base",
+        "G06-cracks",
+        "G06-splinters",
+        "G06-broken",
+        "G07-frame",
+        "G07-panel",
+        "G07-lip",
+        "G07-broken",
+        "G08-base",
+        "G08-claw-left",
+        "G08-claw-right",
+        "G08-broken",
+        "M01-base",
+        "M01-hammer",
+        "M01-chain",
+        "M01-broken",
+        "M02-base",
+        "M02-log",
+        "M02-pin",
+        "M02-broken"
+      ],
+      "reference": "D:/Tower/assets/game/props.webp",
+      "prompt": "Production TRANSPARENT RGBA PNG game mechanism COMPONENT atlas, FOUR columns x FIVE rows, 20 equal square cells, 4:5 portrait aspect, ideally 2048x2560. Exactly ONE separate isolated component in every cell with generous transparent margins. Side-on 2.5D matching reference hand-painted thick dark outlines, rich woodgrain, iron bolts, brass, subdued green military accents. No background, floor, checkerboard, text, labels or cell lines. Fully painted hidden surfaces. All main mechanisms one game grid slot wide. No characters.\nROW1 BARRICADE: c1 complete wood-and-iron spiked crossed-log barricade like reference LEFT item; c2 sparse dark cracks with small wood chips ONLY as transparent damage overlay, NO complete barricade; c3 separate cluster wooden splinters; c4 collapsed broken barricade low profile.\nROW2 TRAPDOOR: c1 wooden rectangular OPEN frame and side hinges, empty TRANSPARENT center, absolutely NO floor inside; c2 isolated solid rectangular wooden hatch panel lying horizontal at shallow sideview perspective, no frame; c3 independent short thick front-edge wooden lip beam for occlusion; c4 broken empty trapdoor frame with splinters. The panel and frame must match in shape and wood.\nROW3 ARMOR STRIPPING CLAW: c1 overhead mounted wooden-and-iron winch bracket with axle, NO chain/claw; c2 LEFT curved hooked metal jaw, pivot eyelet at TOP, curves DOWN and inward; c3 matching RIGHT jaw, mirror shape, independent; c4 broken wooden winch bracket. Two jaws will pinch a shield under the winch, draw each jaw separately.\nROW4 DROP HAMMER: c1 stout overhead winch and pulley crossbeam with no chain/head; c2 massive independent square iron-and-hardwood hammerhead with brass bands and top eyelet, strikes DOWN; c3 a straight VERTICAL CHAIN SEGMENT consisting of six linked dark iron links, transparent surroundings, can be tiled vertically; c4 broken overhead pulley mount.\nROW5 LOG LAUNCHER: c1 fixed EMPTY slanted wooden launch rack with two runners, NO rolling log, open cradle visibly empty, launch direction RIGHT; c2 independent horizontal iron-spiked cylindrical rolling LOG matching reference CENTER item; c3 isolated wooden release locking pin/lever; c4 collapsed damaged empty launch rack. No wheels on rack.\nDo not substitute spikes for mechanisms. Keep all pieces complete, no cropping.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-1e78a484-28cc-4b1c-9205-f0e8e835d579.png"
+    },
+    {
+      "id": "B01",
+      "name": "xinye-clean-backdrop-v2",
+      "source": "art/source/scene/xinye-clean-backdrop-v2.png",
+      "kind": "plate",
+      "reference": "D:/Tower/assets/game/camp-city-outskirts-v1.webp",
+      "prompt": "Edit supplied side-view three-tier OUTDOOR Chinese town tower-defense environment into a CLEAN REUSABLE BACKGROUND PLATE. Preserve the rich painted style, daylight, cool blue-gray stone, ochre weathered wood, green Shu tent at top right, mountains and trees. Landscape 16:9, ideally 2048x1152.\nThe input is a visual environment reference. Repaint and remove ALL foreground walking platforms, supporting horizontal floor beams, rails, foreground stairs and staircase railings. These interactive foreground elements will be added as separate transparent sprites. Reconstruct the scenery behind every removed element fully. Do not leave silhouettes, holes in the image, checkerboards or blank patches.\nKeep three distinct scenic zones: upper third OPEN AIR hillside military encampment and main ivory green-trim canvas tent at FAR RIGHT; middle third open town street background with distant tiled rooftops and shuttered market stalls; bottom third the OUTSIDE of the massive stone city wall with a dusty foreground road and distant smoky enemy camp far left. Absolutely not indoor rooms or enclosed stacked apartments.\nUpper lane reference line y=31% and middle lane y=59% must now be EMPTY of any horizontal walkway, board, floor or railing across the foreground, so future trapdoors can genuinely open onto the scenery BELOW. Paint subdued CONTINUOUS scenic depth behind these two bands. The bottom road at y=87% may remain as plain rough earth.\nOn the right of middle zone y=42%-59%, keep a stone gate surround with a DARK OPEN INTERIOR, no wooden doors. On the top right tent, entrance is OPEN DARK CLOTH INTERIOR, no closed front curtains. Remove visible flags and flame tongues (separate overlays later). No characters, no deployed weapons, no UI, no words, no numbers, no lights painted over interactive openings.\nThis layer must be detailed and cohesive but quieter than the actors. High quality thick outline hand-painted game backdrop, preserve outdoor feeling and clear 3-lane geometry.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-c2b03972-ba44-4e37-ab7a-5b9e1e8e2e22.png"
+    },
+    {
+      "id": "E04",
+      "name": "cao-scout-parts-v1",
+      "source": "art/source/characters/E04-cao-scout-parts-v1.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-c58862e1-16e4-4c70-b0cd-57e55ca06c68.png",
+      "grid": [
+        4,
+        4
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit",
+        "torso-climb",
+        "arm-climb-back",
+        "arm-climb-front",
+        "legs-tucked"
+      ],
+      "promptSummary": "Transparent 4x4 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: reference, head, torso, arm-back, arm-front, leg-back, leg-front, weapon, equipment, arm-carry, arm-grab, head-hit, torso-climb, arm-climb-back, arm-climb-front, legs-tucked. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "E06",
+      "name": "cao-tiger-guard-parts-v1",
+      "source": "art/source/characters/E06-cao-tiger-guard-parts-v1.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-ecbf0439-797f-43cb-acb9-da1d393e9a28.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ],
+      "promptSummary": "Transparent 4x3 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: reference, head, torso, arm-back, arm-front, leg-back, leg-front, weapon, equipment, arm-carry, arm-grab, head-hit. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "E07",
+      "name": "caohong-parts-v1",
+      "source": "art/source/characters/E07-caohong-parts-v1.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-57d8100a-05a1-4b01-b6cd-c1b311b2c2f0.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ],
+      "promptSummary": "Transparent 4x3 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: reference, head, torso, arm-back, arm-front, leg-back, leg-front, weapon, equipment, arm-carry, arm-grab, head-hit. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "B05-dancer",
+      "name": "camp-dancer-frames-v1",
+      "source": "art/source/B05/camp-dancer-frames-v1.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-9949175b-dbe6-44dc-aba8-c6dd6baac182.png",
+      "grid": [
+        4,
+        2
+      ],
+      "cells": [
+        "dance-0",
+        "dance-1",
+        "dance-2",
+        "dance-3",
+        "dance-4",
+        "dance-5",
+        "dance-6",
+        "dance-7"
+      ],
+      "runtimeCell": 320,
+      "promptSummary": "Transparent 4x2 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: dance-0, dance-1, dance-2, dance-3, dance-4, dance-5, dance-6, dance-7. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "B-PARTS",
+      "name": "xinye-scene-parts-v2",
+      "source": "art/source/scene/xinye-scene-parts-v2.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-db0aa835-470e-45a7-a875-5a64633bbdd3.png",
+      "grid": [
+        4,
+        4
+      ],
+      "cells": [
+        "platform",
+        "front-lip",
+        "beam",
+        "post",
+        "railing",
+        "stairs-left",
+        "stairs-right",
+        "gate-frame",
+        "gate-left",
+        "gate-right",
+        "curtain-left",
+        "curtain-right",
+        "flag-green",
+        "flag-red",
+        "flag-blue",
+        "barrier"
+      ],
+      "runtimeCell": 384,
+      "promptSummary": "Transparent 4x4 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: platform, front-lip, beam, post, railing, stairs-left, stairs-right, gate-frame, gate-left, gate-right, curtain-left, curtain-right, flag-green, flag-red, flag-blue, barrier. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "FX",
+      "name": "battle-effects-v2",
+      "source": "art/source/effects/battle-effects-v2.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-26b0948e-bd2e-417d-9e0c-ea526bbebf8c.png",
+      "grid": [
+        4,
+        5
+      ],
+      "cells": [
+        "fire-0",
+        "fire-1",
+        "fire-2",
+        "arrow",
+        "hit",
+        "block",
+        "dust",
+        "poison-drop",
+        "poison-splash",
+        "poison-status",
+        "wind",
+        "slow-ring",
+        "heal",
+        "repair",
+        "rescue",
+        "return-trail",
+        "shield",
+        "shield-break",
+        "wood",
+        "metal"
+      ],
+      "runtimeCell": 192,
+      "promptSummary": "Transparent 4x5 atlas. Three Kingdoms painted dark-outlined style. Separate cells in row-major order: fire-0, fire-1, fire-2, arrow, hit, block, dust, poison-drop, poison-splash, poison-status, wind, slow-ring, heal, repair, rescue, return-trail, shield, shield-break, wood, metal. Identity and detailed prompt refer to original image_gen call in this task.",
+      "recoveredAfterInterruption": true
+    },
+    {
+      "id": "L01",
+      "name": "liubei-leisure-parts-v1",
+      "source": "art/source/L01/liubei-leisure-parts-v1.png",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aea7-1473-78a2-8784-d5e6e7b8c3e3/exec-535ac12c-e666-4c36-a94b-60bee46afd3b.png",
+      "prompt": "Use case: stylized-concept / game character production sprite sheet.\nCreate a TRANSPARENT RGBA PNG 4 columns x 4 rows atlas, exactly 2048x2048 if possible, sixteen equal 512x512 cells. No cell lines, no labels, absolutely no text, no checkerboard, no solid background. Each part entirely inside its own cell with generous transparent padding. Every object is separate and does not touch another cell.\nReference image is character identity and painting style only: LIU BEI is the FIRST character at the TOP LEFT (green and pale yellow robe, big expressive ears/eyes, tied dark hair and small black moustache/goatee). Use ONLY this character. Maintain chunky comedic Three Kingdoms cartoon proportions, expressive thick black outlines, hand-painted fabric and warm wooden textures. NOT realistic, NOT 3D, not vector.\nThis is a layer kit for the amusing scene of Liu Bei relaxing on a traditional wooden reclining chaise watching dancers. Do not render any captions or dialogue.\nExact cell order left to right top to bottom:\n0 assembled reference ONLY: Liu Bei comfortably reclining on a warm wooden chaise, head at upper right, feet lower left, wearing his pale yellow jacket and green robe, pleased relaxed face looking LEFT, one hand casually conducting the rhythm. Full chair visible.\n1 EMPTY same wooden reclining chaise, same orientation, back rest at RIGHT, foot end LEFT, ochre cushions, complete exposed seat, no person, no shadows.\n2 isolated Liu Bei reclining TORSO with robe and hips only, slanted down-left from shoulders at upper right; NO head, NO arms, NO legs. Fully paint hidden shoulder and hip overlaps.\n3 isolated Liu Bei HEAD only with hair bun, ears, happy half-closed eyes, black small moustache and goatee, looking LEFT, neck included.\n4 isolated front ARM with pale yellow sleeve and relaxed gesturing open hand, bent elbow; NO torso.\n5 isolated rear ARM with pale yellow sleeve and resting hand; NO torso.\n6 isolated front LEG with green trouser/robe flap and dark brown boot, bent knee, no body.\n7 isolated rear LEG with green fabric and boot, no body.\n8 isolated upright standing green-robed TORSO and hips only, no head/arms/legs, front-three-quarter facing LEFT, matching same costume.\n9 isolated horizontal green-robed TORSO and hips in captive struggling orientation, no head/arms/legs.\n10 isolated crouching green-robed TORSO and hips only, no head/arms/legs.\n11 isolated shocked Liu Bei HEAD only, eyes wide and mouth alarmed, same scale and identity as cell3.\n12 isolated reaching ARM with pale yellow sleeve and open hand, for struggling/call for help.\n13 isolated bent ARM with pale yellow sleeve and raised open palm, for surprised/bracing pose.\n14 isolated happy laughing Liu Bei HEAD only, same identity and angle as cell3.\n15 isolated small wooden footstool and bronze wine cup placed together, no text.\nPaint components at large readable scale within each cell, correct natural anatomy for a stylized ADULT character, no duplicated extra fingers. Full transparent backgrounds. Source quality game-ready cutout art.",
+      "grid": [
+        4,
+        4
+      ],
+      "cells": [
+        "reference",
+        "chair",
+        "recline-torso",
+        "head-relaxed",
+        "arm-front",
+        "arm-back",
+        "leg-front",
+        "leg-back",
+        "torso",
+        "torso-carried",
+        "torso-crouch",
+        "head-alarm",
+        "arm-reach",
+        "arm-brace",
+        "head-happy",
+        "footstool"
+      ]
+    },
+    {
+      "id": "E01",
+      "name": "cao-footman-parts-v1",
+      "source": "art/source/characters/E01-cao-footman-parts-v1.png",
+      "reference": "D:/Tower/assets/game/actors-v2.webp",
+      "spec": "CHARACTER: exact Cao foot soldier at bottom row second cell in reference: dark steel helmet with short RED tassel, gray lamellar armor, red scarf, tan trousers, brown boots, moustached determined man. MAIN WEAPON cell7 a curved dao sword. SECONDARY EQUIPMENT cell8 separate empty sword scabbard.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nCHARACTER: exact Cao foot soldier at bottom row second cell in reference: dark steel helmet with short RED tassel, gray lamellar armor, red scarf, tan trousers, brown boots, moustached determined man. MAIN WEAPON cell7 a curved dao sword. SECONDARY EQUIPMENT cell8 separate empty sword scabbard.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-ecf9b280-5f02-44c8-9941-9bceb67942ea.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "E02",
+      "name": "cao-shieldman-parts-v1",
+      "source": "art/source/characters/E02-cao-shieldman-parts-v1.png",
+      "reference": "D:/Tower/assets/game/actors-v2.webp",
+      "spec": "CHARACTER: exact Cao shieldman at bottom row third cell in reference: broad bearded face, dark steel helmet RED tassel, gray plate/lamellar armor, red scarf, tan trousers. MAIN WEAPON cell7 curved dao sword. SECONDARY EQUIPMENT cell8 large round wood and iron shield. CRITICAL cell2 is a FULLY EXPOSED COMPLETE UNARMED NO-SHIELD TORSO. Never paint shield into any body part except full reference cell0.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nCHARACTER: exact Cao shieldman at bottom row third cell in reference: broad bearded face, dark steel helmet RED tassel, gray plate/lamellar armor, red scarf, tan trousers. MAIN WEAPON cell7 curved dao sword. SECONDARY EQUIPMENT cell8 large round wood and iron shield. CRITICAL cell2 is a FULLY EXPOSED COMPLETE UNARMED NO-SHIELD TORSO. Never paint shield into any body part except full reference cell0.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-8c832c92-41b6-4a42-8f4f-101dad5f1bb4.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "S01",
+      "name": "shu-guard-parts-v1",
+      "source": "art/source/characters/S01-shu-guard-parts-v1.png",
+      "reference": "D:/Tower/assets/game/shu-infantry-v1.webp",
+      "spec": "CHARACTER: exact SHU sword-and-shield guardsman in TOP RIGHT reference cell: green military cloth with warm brown/gold leather lamellar, bronze helmet, green plume, compact mature male. Distinct from Cao gray-and-red uniform. MAIN WEAPON cell7 short dao sword. SECONDARY EQUIPMENT cell8 wooden shield with green accents. Torso must be complete behind removed shield.",
+      "prompt": "Use case: stylized-concept / production game skeletal sprite atlas.\nCreate ONE RGBA transparent PNG sprite sheet, 4 columns x 3 rows, 12 equal cells, landscape 4:3 aspect. Prefer 2048x1536. NO labels, NO lines, NO shadows, NO background or checkerboard, no letters. Exactly one specified item per cell, generous clear space at all cell edges. All parts fit inside cell without touching neighbors.\nReference image is ONLY for matching character identity and art style. Thick dark expressive outlines, hand-painted fabric/steel/wood, exaggerated adult Three Kingdoms cartoon soldiers with large heads and compact bodies, earthy muted colors, high contrast silhouettes. Fully render surfaces originally hidden behind shield or weapon.\nDraw each isolated part LARGE in its own cell. All isolated body parts share the same right-facing three-quarter perspective as the complete reference. Parts are for a puppet rig, not a moodboard.\nStandard row-major layout:\n0 COMPLETE assembled full-body standing reference, facing RIGHT, including equipment.\n1 HEAD with neck and helmet/hair only.\n2 TORSO with belt, tunic and hips, NO head, arms or legs. Chest painted fully even if reference has a shield.\n3 BACK ARM with sleeve, forearm and hand only; gentle elbow bend, no equipment.\n4 FRONT ARM with sleeve, forearm and clenched hand only; elbow down, no equipment.\n5 BACK LEG including thigh, lower leg and boot; slight knee bend.\n6 FRONT LEG including thigh, lower leg and boot; upright.\n7 MAIN WEAPON ONLY, separated.\n8 SECONDARY EQUIPMENT ONLY, separated.\n9 CARRYING ARM ONLY with bent elbow and upward hand supporting a carried person; no captive drawn.\n10 REACHING/GRABBING ARM ONLY with open hand reaching right.\n11 alternate STRUCK HEAD with helmet/hair, same identity and scale, expressive squint, no blood.\nNo gore. Do not combine shield with torso or weapons with hands. Make overlapping shoulder/hip ends rounded so rotating parts never opens an empty cut.\nCHARACTER: exact SHU sword-and-shield guardsman in TOP RIGHT reference cell: green military cloth with warm brown/gold leather lamellar, bronze helmet, green plume, compact mature male. Distinct from Cao gray-and-red uniform. MAIN WEAPON cell7 short dao sword. SECONDARY EQUIPMENT cell8 wooden shield with green accents. Torso must be complete behind removed shield.",
+      "generated": "C:\\Users\\Tylergao\\.codex\\generated_images\\01a0aea7-1473-78a2-8784-d5e6e7b8c3e3\\exec-115d5b13-2117-4716-bee1-946bd3a68f58.png",
+      "grid": [
+        4,
+        3
+      ],
+      "cells": [
+        "reference",
+        "head",
+        "torso",
+        "arm-back",
+        "arm-front",
+        "leg-back",
+        "leg-front",
+        "weapon",
+        "equipment",
+        "arm-carry",
+        "arm-grab",
+        "head-hit"
+      ]
+    },
+    {
+      "id": "L01-LEGS",
+      "name": "liubei-legs-v2",
+      "source": "art/source/L01/liubei-legs-v2.png",
+      "grid": [
+        2,
+        2
+      ],
+      "cells": [
+        "seated-front",
+        "seated-back",
+        "standing-front",
+        "standing-back"
+      ],
+      "reference": "art/source/L01/liubei-leisure-parts-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: replacement animation leg-part atlas for the attached Chinese Three Kingdoms chibi Liu Bei game character. Reference image 1 is STYLE AND COSTUME ONLY. Generate a new 1024x1024 TRUE RGBA TRANSPARENT atlas, 2 columns x 2 rows, four isolated SINGLE LEG parts, one in each cell. Same detailed painterly cel shading, thick dark brown ink outlines, dark jade green loose silk trousers, brown socks and dark brown cloth shoes with thin antique gold piping as reference. Top left: ONE relaxed seated bent leg, upper thigh enters from upper right, knee to upper left, single shoe points left-down, seen three-quarter front. Top right: ONE matching rear seated bent leg, slightly slimmer, ONE shoe points left-down. Bottom left: ONE standing leg from rounded hip at top to single shoe at bottom pointing right, slight knee bend, three quarter front, fully visible trousers. Bottom right: ONE matching rear standing leg, single shoe pointing right, slightly bent knee. EACH CELL EXACTLY ONE LEG ONE FOOT. No paired legs, no torsos, no arms, no heads, no chair, no floor, no extra cloth tails, no labels, no text, no grid lines. Generous transparent gaps and 12 percent outer margin per cell; uniform scale; rounded upper thigh overlap area for animation joint. Transparent background, not checkerboard.",
+      "generated": "C:/Users/Tylergao/.codex/generated_images/01a0aef2-1ff9-7811-978f-7799afa97c7f/exec-d839b7d5-81f4-48fc-87f9-5bc301f01456.png"
+    }
+  ]
+}

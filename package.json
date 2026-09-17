@@ -1,0 +1,25 @@
+{
+  "name": "tower",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "prebuild": "node tools/configure-art.mjs",
+    "build": "tsc --noEmit && vite build",
+    "art:build": "node tools/prepare-art.mjs && node tools/configure-art.mjs",
+    "art:configure": "node tools/configure-art.mjs",
+    "art:preview": "node tools/serve-art.mjs",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.9",
+    "@types/node": "25.5.0",
+    "sharp": "^0.35.4",
+    "typescript": "6.0.2",
+    "vite": "8.3.0"
+  }
+}
