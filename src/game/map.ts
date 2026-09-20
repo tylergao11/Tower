@@ -4,6 +4,14 @@ export const lastColumn=LEVEL.columns-1;
 export const stride=LEVEL.columns;
 export const destination=(LEVEL.floors-1)*stride+lastColumn;
 export function routeAt(floor:number,x:number):number { return floor*stride+(floor%2 ? lastColumn-x:x); }
+export function entryOpen(entry:typeof LEVEL.entries[keyof typeof LEVEL.entries],wave:number,waveTime:number):boolean {
+  return wave>entry.wave||(wave===entry.wave&&(entry.wave===1||waveTime>=RULES.entryWarning));
+}
+export function nearestExit(q:number,wave:number,waveTime:number):keyof typeof LEVEL.entries {
+  return (Object.keys(LEVEL.entries) as (keyof typeof LEVEL.entries)[])
+    .filter(key=>entryOpen(LEVEL.entries[key],wave,waveTime))
+    .sort((a,b)=>Math.abs(routeAt(LEVEL.entries[a].floor,LEVEL.entries[a].x)-q)-Math.abs(routeAt(LEVEL.entries[b].floor,LEVEL.entries[b].x)-q))[0]!;
+}
 export function position(q:number):Position {
   q=Math.max(0,Math.min(destination,q));
   const floor=Math.min(LEVEL.floors-1,Math.floor(q/stride));

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import rawManifest from '../../assets/game/asset-manifest.json';
-import { CARDS, RULES, VIEW } from '../config';
+import { CARDS, ENEMIES, RULES, VIEW } from '../config';
 import { sampleArt, artPhase, type ArtObject, type ArtPose } from '../../art/runtime/art-player.js';
 export const manifest=rawManifest as unknown as {
   files:Record<string,{path:string;width:number;height:number;bytes:number;sha256:string;preload?:boolean;cols?:number;rows?:number}>;
@@ -25,7 +25,7 @@ function tightPreview(canvas:HTMLCanvasElement) {
 
 // UI images use the same layered pose and atlas rectangles as the battlefield.
 export function installPreviews(scene:Phaser.Scene) {
-  for(const card of CARDS){
+  for(const card of [...CARDS,...ENEMIES.filter(enemy=>enemy.boss)]){
     const art=manifest.objects[card.id],pose=manifest.bindings[card.id].cardPose||{action:'idle',phase:0};
     if(!art)throw new Error(`Missing art object: ${card.id}`);
     const canvas=document.createElement('canvas');canvas.width=art.canvas[0];canvas.height=art.canvas[1];

@@ -1,20 +1,20 @@
-import { CARD, ENEMY, HERO_SKILLS, LEVEL, RULES, type CardDef } from '../config';
-import { destination, lastColumn, position, routeAt, routeFacing, stride } from './map';
-import type { Bag, BattleStats, Command, Effect, Enemy, Lord, Phase, Projectile, Spawn, Unit } from './types';
+import { CARD, ENEMY, HERO_SKILLS, LEVEL, RULES, createDeck, cardAtLevel } from '../config';
+import { destination, lastColumn, nearestExit, position, routeAt, routeFacing, stride } from './map';
+import type { BattleStats, Command, Effect, Enemy, Lord, Phase, Projectile, Spawn, Unit } from './types';
 
 export class Battle {
   phase: Phase = 'select';
   paused = false;
   time = 0;
   money: number = RULES.money;
+  lordSupply: number = RULES.lordWaveSupply;
   wave = 0;
   waveTime = 0;
   countdown: number = RULES.preparation;
-  deck = [...LEVEL.defaultDeck];
+  deck = createDeck();
   enemies: Enemy[] = [];
   units: Unit[] = [];
   projectiles: Projectile[] = [];
-  bags: Bag[] = [];
   effects: Effect[] = [];
   cooldowns: Record<string, number> = {};
   pending: Spawn[] = [];
@@ -23,6 +23,7 @@ export class Battle {
   message = '';
   messageUntil = 0;
   loser = '';
+  escapedVia?:keyof typeof LEVEL.entries;
   stats: BattleStats = { captures: 0, rescues: 0, losses: 0, kills: 0, time: 0 };
   lord: Lord = { state: 'idle', ...LEVEL.lord, grace: 0, shield: 0, production: 0, returning: 0 };
   private nextId = 1;
@@ -34,8 +35,9 @@ export class Battle {
   tell(message: string) { this.message = message; this.messageUntil = this.time + 2.5; return false; }
 
   start(deck: string[]) {
-    if (this.phase !== 'select' || deck.length !== LEVEL.deckSize || new Set(deck).size !== deck.length || deck.some(id => !Object.hasOwn(CARD,id)) || LEVEL.requiredCards.some(id=>!deck.includes(id))) return false;
-    this.deck = [...deck];
+    const expected=createDeck(deck);
+    if (this.phase !== 'select' || deck.length !== expected.length || new Set(deck).size !== deck.length || expected.some(id=>!deck.includes(id))) return false;
+    this.deck = expected;
     this.phase = 'prepare';
     return true;
   }
@@ -67,7 +69,7 @@ export class Battle {
     const def = CARD[card];
     this.money -= def.cost;
     this.cooldowns[card] = def.cooldown;
-    this.units.push({ uid: this.id(), def, floor, x, home: x, hp: def.hp, facing: facing < 0 ? -1 : 1, born: this.time, ready: RULES.buildTime, cooldown: def.manual ? def.interval : 0, production: 0, hit: 0, action: 'idle', actionUntil: 0, pending: 0, openUntil: 0, skillCooldown:0 });
+    this.units.push({ uid: this.id(), def, level:0, kills:0, invested:def.cost, floor, x, home: x, hp: def.hp, facing: facing < 0 ? -1 : 1, born: this.time, ready: RULES.buildTime, cooldown: def.manual ? def.initialReload??def.interval : 0, production: 0, incomePaid: 0, hit: 0, action: 'idle', actionUntil: 0, pending: 0, openUntil: 0, skillCooldown:0 });
     return true;
   }
 
@@ -81,25 +83,38 @@ export class Battle {
   }
 
   effect(kind: string, floor: number, x: number, value?: number) {
-    this.effects.push({ uid: this.id(), kind, floor, x, value, life: .65, maxLife: .65 });
+    const life=kind==='boss'?RULES.bossArrivalDuration:kind==='promote'?RULES.promotionDuration:kind==='coin'?RULES.incomeEffectDuration:.65;
+    this.effects.push({ uid: this.id(), kind, floor, x, value, life, maxLife: life });
     if (this.effects.length > RULES.effectsLimit) this.effects.shift();
   }
 
-  collect(uid: number) {
-    if (!this.active || this.paused) return false;
-    const bag = this.bags.find(b => b.uid === uid);
-    if (!bag) return false;
-    const amount = bag.amount;
-    this.money += amount; bag.amount -= amount;
-    if (amount) this.effect('coin', bag.floor, bag.x, amount);
-    this.bags = this.bags.filter(b => b.amount > 0);
-    return amount > 0;
+  private gainIncome(amount:number,floor:number,x:number) {
+    this.money+=amount;
+    this.effect('coin',floor,x,amount);
+  }
+
+  private damageUnit(unit:Unit,amount:number) {
+    if(!unit.def.destructible||unit.hp<=0)return;
+    unit.hp-=amount;unit.healthRevealed=true;unit.hit=RULES.hitFlash;
+    this.effect('hit',unit.floor,unit.x);
+  }
+
+  refund(unit:Unit) { return Math.floor(unit.invested*RULES.refund*unit.hp/unit.def.hp); }
+
+  private creditKill(unit:Unit) {
+    if(unit.hp<=0||!unit.def.upgrades)return;
+    unit.kills++;
+    const tier=unit.def.upgrades[unit.level];
+    if(!tier||unit.kills<tier.kills)return;
+    const next=cardAtLevel(unit.def.id,++unit.level);
+    unit.hp*=next.hp/unit.def.hp;
+    if(unit.def.interval>0)unit.cooldown*=next.interval/unit.def.interval;
+    unit.def=next;this.effect('promote',unit.floor,unit.x,unit.level+1);
   }
 
   command(command: Command): boolean {
     if (!this.active || this.paused) return false;
     if (command.type === 'deploy') return this.deploy(command.card, command.floor, command.x, command.facing);
-    if (command.type === 'collect') return this.collect(command.uid);
     if (command.type === 'focus') {
       if (!this.enemies.some(e => e.uid === command.uid && e.hp > 0)) return false;
       this.focus = this.focus === command.uid ? undefined : command.uid; return true;
@@ -113,7 +128,7 @@ export class Battle {
     const unit = this.units.find(u => u.uid === command.uid && u.hp > 0);
     if (!unit) return false;
     if (command.type === 'sell') {
-      this.money += Math.floor(unit.def.cost * RULES.refund * unit.hp / unit.def.hp);
+      this.money += this.refund(unit);
       this.units = this.units.filter(u => u !== unit); return true;
     }
     if (command.type === 'rally') {
@@ -150,15 +165,17 @@ export class Battle {
       this.lord.returning-=dt;
       if(this.lord.returning<=0) Object.assign(this.lord,{state:'idle',...LEVEL.lord,returning:0});
     }
-    for(const bag of this.bags)if(this.time-bag.born>=RULES.bagAutoCollect)this.collect(bag.uid);
     this.production(dt);
     for(const unit of this.units) this.updateUnit(unit,dt);
     this.updateProjectiles(dt);
     for(const enemy of this.enemies) if(enemy.hp>0) this.updateEnemy(enemy,dt);
     this.resolveDeaths();
     const carrier=this.enemies.find(e=>e.uid===this.lord.carrier&&e.hp>0);
-    if(carrier && carrier.q<=0) { this.phase='lost';this.lord.state='lost';this.loser=carrier.def.name; }
     if(this.lord.state==='carried'&&carrier) {const p=position(carrier.q);this.lord.floor=p.floor;this.lord.x=p.x;}
+    if(carrier?.exit) {
+      const exit=LEVEL.entries[carrier.exit];
+      if(carrier.q===routeAt(exit.floor,exit.x)){this.phase='lost';this.lord.state='lost';this.loser=carrier.def.name;this.escapedVia=carrier.exit;}
+    }
     this.effects.forEach(e=>e.life-=dt);this.effects=this.effects.filter(e=>e.life>0);
     this.enemies=this.enemies.filter(e=>e.hp>0||this.time-(e.deadAt??this.time)<RULES.enemyDeathDuration);
     if(!this.active) return;
@@ -168,6 +185,7 @@ export class Battle {
       this.waveTime+=dt;
       while(this.pending.length&&this.pending[0].at<=this.waveTime)this.spawn(this.pending.shift()!);
       if(!this.pending.length&&!this.enemies.some(e=>e.hp>0)) {
+        if(this.lordSupply>0){this.gainIncome(this.lordSupply,this.lord.floor,this.lord.x);this.lordSupply=0;}
         if(this.lord.state==='dropped')this.returnLord();
         if(this.wave===LEVEL.waves.length) { if(this.lord.state!=='returning')this.phase='won'; }
         else {this.phase='rest';this.countdown=RULES.intermission;}
@@ -177,24 +195,32 @@ export class Battle {
 
   private beginWave() {
     this.wave++;this.waveTime=0;this.phase='wave';
-    this.pending=LEVEL.waves[this.wave-1].flatMap(g=>Array.from({length:g.count},(_,i)=>({entry:g.entry,at:g.at+i*g.gap,enemy:g.enemy}))).sort((a,b)=>a.at-b.at);
+    this.lordSupply=RULES.lordWaveSupply;this.lord.production=0;
+    this.pending=LEVEL.waves[this.wave-1].groups.flatMap(g=>Array.from({length:g.count},(_,i)=>({entry:g.entry,at:g.at+i*g.gap,enemy:g.enemy}))).sort((a,b)=>a.at-b.at);
     while(this.pending.length&&this.pending[0].at<=0)this.spawn(this.pending.shift()!);
   }
 
   private spawn(spawn: Spawn) {
-    const entry=LEVEL.entries[spawn.entry],def=ENEMY[spawn.enemy];
+    const entry=LEVEL.entries[spawn.entry],base=ENEMY[spawn.enemy],vitality=LEVEL.waves[this.wave-1].vitality;
+    const def={...base,hp:Math.round(base.hp*vitality),shield:base.shield?Math.round(base.shield*vitality):undefined};
     this.enemies.push({uid:this.id(),def,q:routeAt(entry.floor,entry.x),hp:def.hp,shield:def.shield||0,face:entry.floor%2?-1:1,hanging:!!def.climb,landing:0,action:'walk',actionUntil:0,attackCd:0,grab:0,stun:0,controlGrace:0,poison:0,slow:0,hit:0});
+    if(def.boss)this.effect('boss',entry.floor,entry.x,this.enemies.at(-1)!.uid);
   }
 
   private production(dt:number) {
     const productionTime=dt*RULES.incomeRateScale;
-    const produce=(source:number,floor:number,x:number,amount:number)=>this.bags.push({uid:this.id(),source,floor,x,amount,born:this.time});
-    if(this.lord.state==='idle'&&this.bags.filter(b=>b.source===0).length<RULES.bagLimit) {
+    if(this.phase==='wave'&&this.lord.state==='idle'&&this.lordSupply>0) {
       this.lord.production+=productionTime;
-      if(this.lord.production>=RULES.lordInterval){this.lord.production-=RULES.lordInterval;produce(0,this.lord.floor,this.lord.x,RULES.lordIncome);}
+      if(this.lord.production>=RULES.lordInterval){
+        const amount=Math.min(RULES.lordIncome,this.lordSupply);
+        this.lord.production-=RULES.lordInterval;this.lordSupply-=amount;this.gainIncome(amount,this.lord.floor,this.lord.x);
+      }
     }
-    for(const u of this.units)if(u.def.income&&u.ready<=0&&u.hp>0&&this.bags.filter(b=>b.source===u.uid).length<RULES.bagLimit){
-      u.production+=productionTime;if(u.production>=u.def.interval){u.production-=u.def.interval;produce(u.uid,u.floor,u.x,u.def.income);}
+    for(const u of this.units)if(u.def.income&&u.ready<=0&&u.hp>0){
+      u.production+=productionTime;if(u.production>=u.def.interval){
+        const amount=u.def.income;
+        u.production-=u.def.interval;u.incomePaid+=amount;this.gainIncome(amount,u.floor,u.x);
+      }
     }
   }
 
@@ -219,7 +245,11 @@ export class Battle {
     }
     enemy.hp-=amount*(kind==='physical'?1-(enemy.def.armor||0):1);
     if(amount>0){enemy.hit=RULES.hitFlash;if(source)enemy.lastAttacker=source;}
-    if(enemy.hp<=0){enemy.hp=0;enemy.deadAt=this.time;enemy.action='dead';this.stats.kills++;const p=position(enemy.q);this.bags.push({uid:this.id(),source:-enemy.uid,floor:p.floor,x:p.x,amount:enemy.def.reward,born:this.time});}
+    if(enemy.hp<=0){
+      enemy.hp=0;enemy.deadAt=this.time;enemy.action='dead';this.stats.kills++;
+      const p=position(enemy.q);this.gainIncome(enemy.def.reward+(enemy.loot??0),p.floor,p.x);enemy.loot=0;
+      for(const unit of this.units)if(unit.uid===enemy.lastAttacker||(unit.def.kind==='barricade'&&unit.uid===enemy.target))this.creditKill(unit);
+    }
   }
 
   private resolveDeaths() {
@@ -296,10 +326,10 @@ export class Battle {
     const targets=this.targets(u,u.def.range,['spikes','hatch'].includes(u.def.kind));
     const target=targets[0];if(!target)return;
     u.cooldown=u.def.interval;u.action='attack';u.actionUntil=this.time+RULES.attackPoseTime;
-    if(u.def.kind==='spikes'){for(const e of targets)this.damage(e,u.def.damage,u.uid);this.effect('hit',u.floor,u.x);}
+    if(u.def.kind==='spikes'){const damage=u.def.damage;for(const e of targets)this.damage(e,damage,u.uid);this.effect('hit',u.floor,u.x);}
     else if(u.def.kind==='ballista'){
       const p=position(target.q);u.facing=p.x>=u.x?1:-1;
-      this.shoot(u.x,this.unitY(u),p.x,this.enemyY(target),u.def.damage,u.uid,'friendly');
+      this.shoot(u.x,this.unitY(u),p.x,this.enemyY(target),u.def.damage,u.uid,'friendly',u.def.pierce,u.def.pierceFalloff);
     } else if(u.def.kind==='hook'){
       if(target.shield>0){target.shield=0;this.effect('shield-break',u.floor,position(target.q).x);}
       this.damage(target,u.def.damage,u.uid);this.effect('hook',u.floor,position(target.q).x);
@@ -311,7 +341,7 @@ export class Battle {
     const committed=this.time<u.actionUntil&&['attack','skill','heal'].includes(u.action);
     if(u.def.kind==='medic'){
       if(committed)return;
-      const injured=this.units.filter(t=>t.floor===u.floor&&t.hp>0&&t.ready<=0&&t.hp<t.def.hp).sort((a,b)=>a.hp/a.def.hp-b.hp/b.def.hp);
+      const injured=this.units.filter(t=>t.def.destructible&&t.floor===u.floor&&t.hp>0&&t.ready<=0&&t.hp<t.def.hp).sort((a,b)=>a.hp/a.def.hp-b.hp/b.def.hp);
       const target=injured[0];
       if(target){
         if(Math.abs(target.x-u.x)<=u.def.range){
@@ -321,12 +351,38 @@ export class Battle {
       return;
     }
     const ranged=u.def.hero==='zhugeliang';
+    const patrol=Math.max(u.def.hero?RULES.heroPatrol:RULES.guardPatrol,u.def.range);
     const candidates=this.enemies.filter(e=>{
-      const p=position(e.q);return e.hp>0&&(ranged||!e.hanging)&&!e.drop&&!p.stairs&&p.floor===u.floor&&(Math.abs(p.x-u.home)<=Math.max(RULES.guardPatrol,u.def.range)||(e.uid===u.target&&Math.abs(p.x-u.home)<=Math.max(RULES.guardPatrol,u.def.range)+RULES.combatReleaseMargin)||e.uid===this.lord.carrier);
+      const p=position(e.q);return e.hp>0&&(ranged||!e.hanging)&&!e.drop&&!p.stairs&&p.floor===u.floor&&(Math.abs(p.x-u.home)<=patrol||(e.uid===u.target&&Math.abs(p.x-u.home)<=patrol+RULES.combatReleaseMargin)||e.uid===this.lord.carrier);
     });
     const previous=candidates.find(e=>e.uid===u.target);
     const priority=candidates.find(e=>e.uid===this.focus)||candidates.find(e=>e.uid===this.lord.carrier);
     const target=committed?previous:priority||previous||candidates.sort((a,b)=>this.targetScore(a,u)-this.targetScore(b,u))[0];
+    // Skills use their own reach and cooldown, without waiting for a melee attack.
+    if(!committed&&u.def.hero&&u.skillCooldown<=0){
+      const skill=HERO_SKILLS[u.def.hero],targets=this.targets(u,skill.range,!ranged);
+      if(targets.length){
+        const p=position(targets[0].q);
+        if(Math.abs(p.x-u.x)>RULES.facingDeadzone)u.facing=Math.sign(p.x-u.x);
+        u.target=targets[0].uid;
+        if(!ranged&&Math.abs(p.x-u.x)<=u.def.range&&!targets[0].blockedBy){targets[0].blockedBy=u.uid;u.blockedEnemy=targets[0].uid;}
+        u.skillCooldown=RULES.heroSkillInterval;u.cooldown=Math.max(u.cooldown,u.def.interval);
+        u.action='skill';u.actionUntil=this.time+RULES.heroSkillPoseTime;
+        for(const enemy of targets){
+          this.damage(enemy,u.def.damage*skill.damageScale,u.uid);
+          if(enemy.hp<=0)continue;
+          if(skill.push){
+            const at=position(enemy.q);
+            if(this.lord.grabber===enemy.uid)this.interruptGrab();
+            enemy.q=routeAt(at.floor,Math.max(0,Math.min(lastColumn,at.x+(Math.sign(at.x-u.x)||u.facing)*skill.push)));
+          }
+          if(skill.stun)this.stun(enemy,skill.stun);
+        }
+        this.effects.push({uid:this.id(),kind:'hero-skill',hero:u.def.hero,facing:u.facing,floor:u.floor,x:u.x,life:RULES.heroSkillEffectTime,maxLife:RULES.heroSkillEffectTime});
+        this.effect(ranged?'wind':u.def.hero==='zhangfei'?'slam':'hit',u.floor,p.x);
+        return;
+      }
+    }
     if(!target){u.target=undefined;u.engaged=false;if(!committed)this.moveGuard(u,u.home,dt);return;}
     if(u.target!==target.uid){u.target=target.uid;u.engaged=false;}
     const p=position(target.q);
@@ -338,24 +394,8 @@ export class Battle {
     if(Math.abs(p.x-u.x)>RULES.facingDeadzone)u.facing=Math.sign(p.x-u.x);
     u.action='idle';
     if(u.cooldown<=0){
-      const skill=!!u.def.hero&&u.skillCooldown<=0;
-      u.cooldown=u.def.interval;u.action=skill?'skill':'attack';u.actionUntil=this.time+(skill?RULES.heroSkillPoseTime:RULES.attackPoseTime);
-      if(skill&&u.def.hero){
-        const skillDef=HERO_SKILLS[u.def.hero];
-        u.skillCooldown=RULES.heroSkillInterval;
-        for(const enemy of this.targets(u,skillDef.range,!ranged)){
-          this.damage(enemy,u.def.damage*skillDef.damageScale,u.uid);
-          if(enemy.hp<=0)continue;
-          if(skillDef.push){
-            const at=position(enemy.q);
-            if(this.lord.grabber===enemy.uid)this.interruptGrab();
-            enemy.q=routeAt(at.floor,Math.max(0,Math.min(lastColumn,at.x+(Math.sign(at.x-u.x)||u.facing)*skillDef.push)));
-          }
-          if(skillDef.stun)this.stun(enemy,skillDef.stun);
-        }
-        this.effects.push({uid:this.id(),kind:'hero-skill',hero:u.def.hero,facing:u.facing,floor:u.floor,x:u.x,life:RULES.heroSkillEffectTime,maxLife:RULES.heroSkillEffectTime});
-        this.effect(ranged?'wind':u.def.hero==='zhangfei'?'slam':'hit',u.floor,p.x);
-      }else {this.damage(target,u.def.damage,u.uid);this.effect(ranged?'wind':'hit',u.floor,p.x);}
+      u.cooldown=u.def.interval;u.action='attack';u.actionUntil=this.time+RULES.attackPoseTime;
+      this.damage(target,u.def.damage,u.uid);this.effect(ranged?'wind':'hit',u.floor,p.x);
     }
   }
 
@@ -372,9 +412,9 @@ export class Battle {
     u.facing=Math.sign(to-u.x);u.x+=u.facing*Math.min(distance,(u.def.speed||0)*RULES.movementSpeedScale*dt);u.action='walk';
   }
 
-  private shoot(x:number,y:number,tx:number,ty:number,damage:number,source:number,team:'friendly'|'enemy') {
+  private shoot(x:number,y:number,tx:number,ty:number,damage:number,source:number,team:'friendly'|'enemy',maxHits=1,damageFalloff=1) {
     const length=Math.hypot(tx-x,ty-y)||1;
-    this.projectiles.push({uid:this.id(),kind:'arrow',team,source,x,y,startX:x,startY:y,born:this.time,vx:(tx-x)/length*RULES.arrowSpeed,vy:(ty-y)/length*RULES.arrowSpeed,damage,floor:Math.floor(y/LEVEL.floorHeight),life:3,hitIds:new Set()});
+    this.projectiles.push({uid:this.id(),kind:'arrow',team,source,x,y,startX:x,startY:y,born:this.time,vx:(tx-x)/length*RULES.arrowSpeed,vy:(ty-y)/length*RULES.arrowSpeed,damage,floor:Math.floor(y/LEVEL.floorHeight),life:3,hitIds:new Set(),maxHits,damageFalloff});
   }
 
   private updateProjectiles(dt:number) {
@@ -406,11 +446,14 @@ export class Battle {
             if(this.lord.grabber===e.uid)this.interruptGrab();
             e.q=routeAt(p.floor,x);
             if(this.units.some(u=>u.hp>0&&u.def.kind==='hatch'&&u.floor===p.floor&&u.openUntil>this.time&&u.x>=Math.min(p.x,x)&&u.x<=Math.max(p.x,x)))this.drop(e);
-          }else {shot.life=0;break;}
+          }else {
+            if(shot.hitIds.size>=(shot.maxHits??1)){shot.life=0;break;}
+            shot.damage*=shot.damageFalloff??1;
+          }
         }
       }else{
-        const target=this.units.filter(u=>u.hp>0&&u.ready<=0&&segmentDistance(u.x,this.unitY(u))<RULES.hitRadius).sort((a,b)=>Math.abs(a.x-ox)-Math.abs(b.x-ox))[0];
-        if(target){target.hp-=shot.damage;target.healthRevealed=true;target.hit=RULES.hitFlash;shot.life=0;}
+        const target=this.units.filter(u=>u.def.destructible&&u.hp>0&&u.ready<=0&&segmentDistance(u.x,this.unitY(u))<RULES.hitRadius).sort((a,b)=>Math.abs(a.x-ox)-Math.abs(b.x-ox))[0];
+        if(target){this.damageUnit(target,shot.damage);shot.life=0;}
       }
     }
     this.projectiles=this.projectiles.filter(p=>p.life>0);
@@ -421,33 +464,33 @@ export class Battle {
     // Finish the committed attack before considering another chase or facing.
     if(e.action==='attack'&&this.time<e.actionUntil)return;
     const p=position(e.q),carrying=this.lord.carrier===e.uid,previousFace=e.face;
-    const goal=carrying?0:routeAt(this.lord.floor,this.lord.x);
+    const treasury=e.def.thief&&!carrying?this.units.filter(u=>u.hp>0&&u.ready<=0&&u.def.income)
+      .sort((a,b)=>Math.abs(routeAt(a.floor,a.x)-e.q)-Math.abs(routeAt(b.floor,b.x)-e.q))[0]:undefined;
+    const fleeing=!carrying&&(e.loot??0)>0&&((e.loot??0)>=RULES.thiefCapacity||!treasury);
+    if(carrying||fleeing)e.exit=nearestExit(e.q,this.wave,this.waveTime);
+    const exit=carrying||fleeing?LEVEL.entries[e.exit!]:undefined;
+    const goal=exit?routeAt(exit.floor,exit.x):treasury?routeAt(treasury.floor,treasury.x):routeAt(this.lord.floor,this.lord.x);
     const routeDirection=Math.sign(goal-e.q);
     e.face=routeFacing(e.q,routeDirection);
-    if(e.def.climb&&!carrying&&Math.abs(goal-e.q)>1&&!p.stairs)e.hanging=true;
-    if(carrying)e.hanging=false;
+    if(e.def.climb&&!carrying&&!fleeing&&Math.abs(goal-e.q)>1&&!p.stairs)e.hanging=true;
+    if(carrying||fleeing||(treasury&&treasury.floor===p.floor&&Math.abs(treasury.x-p.x)<=RULES.meleeRange))e.hanging=false;
     if(this.time>=e.actionUntil)e.action=e.hanging?'climb':carrying?'carry':'walk';
-    const guards=this.units.filter(u=>u.hp>0&&u.ready<=0&&u.floor===p.floor);
+    const guards=this.units.filter(u=>u.def.destructible&&u.hp>0&&u.ready<=0&&u.floor===p.floor);
     const barrier=!e.hanging&&!p.stairs?guards.find(u=>u.def.kind==='barricade'&&Math.abs(u.x-p.x)<=RULES.meleeRange&&((u.x-p.x)*e.face>=-.1)):undefined;
     const blocker=barrier||guards.find(u=>u.uid===e.blockedBy);
     const previous=guards.find(u=>u.uid===e.target&&Math.abs(u.x-p.x)<=(e.def.ranged?RULES.archerRange:e.def.engineer?RULES.engineerRange:RULES.meleeRange)+RULES.combatReleaseMargin);
-    let attackTarget=blocker||(!carrying&&!p.stairs?previous:undefined);
+    let attackTarget=blocker||(!carrying&&!fleeing&&!p.stairs?previous:undefined);
     let range:number=e.def.ranged&&!blocker?RULES.archerRange:RULES.meleeRange;
-    if(!attackTarget&&!carrying&&!p.stairs){
+    if(!attackTarget&&!carrying&&!fleeing&&!p.stairs){
       if(e.def.engineer){
-        attackTarget=guards.filter(u=>!u.def.mobile&&!u.def.surfaces.includes('ceiling')&&(u.x-p.x)*e.face>=-.1&&Math.abs(u.x-p.x)<=RULES.engineerRange).sort((a,b)=>(a.def.kind==='income'?-1:0)-(b.def.kind==='income'?-1:0)||Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
+        attackTarget=guards.filter(u=>u.def.kind==='barricade'&&(u.x-p.x)*e.face>=-.1&&Math.abs(u.x-p.x)<=RULES.engineerRange).sort((a,b)=>Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
       }else if(e.def.ranged){
         range=RULES.archerRange;
         attackTarget=guards.filter(u=>Math.hypot(u.x-p.x,this.unitY(u)-this.enemyY(e))<=range).sort((a,b)=>(a.uid===e.lastAttacker?-1:0)-(b.uid===e.lastAttacker?-1:0)||Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
-      }else if(!e.hanging){
-        // Foot soldiers stop at reachable installations instead of walking through them.
-        attackTarget=guards.filter(u=>!u.def.mobile&&!u.def.surfaces.includes('ceiling')&&(u.x-p.x)*e.face>=-.1&&
-          Math.abs(u.x-p.x)<=(['spikes','hatch'].includes(u.def.kind)?RULES.floorTrapAttackRange:RULES.meleeRange))
-          .sort((a,b)=>Math.abs(a.x-p.x)-Math.abs(b.x-p.x))[0];
       }
+      if(!attackTarget)attackTarget=guards.find(u=>u.def.income&&Math.abs(u.x-p.x)<=RULES.meleeRange);
     }
     if(attackTarget){
-      if(!e.def.ranged&&!e.def.engineer&&['spikes','hatch'].includes(attackTarget.def.kind))range=RULES.floorTrapAttackRange;
       if(this.lord.grabber===e.uid)this.interruptGrab();
       const reach=range+(e.target===attackTarget.uid?RULES.combatReleaseMargin:0);e.target=attackTarget.uid;
       const distance=Math.abs(attackTarget.x-p.x);
@@ -458,12 +501,21 @@ export class Battle {
         e.action='attack';e.attackCd=e.def.interval;e.actionUntil=this.time+RULES.attackPoseTime;
         const damage=e.def.engineer?(attackTarget.def.mobile?RULES.engineerGuardDamage:RULES.engineerDamage):e.def.damage;
         if(e.def.ranged)this.shoot(p.x,this.enemyY(e),attackTarget.x,this.unitY(attackTarget),damage,e.uid,'enemy');
-        else {attackTarget.hp-=damage;attackTarget.healthRevealed=true;attackTarget.hit=RULES.hitFlash;this.effect('hit',attackTarget.floor,attackTarget.x);}
+        else this.damageUnit(attackTarget,damage);
+        if(e.def.thief&&attackTarget.def.income&&!carrying){
+          const stolen=Math.min(this.money,RULES.thiefSteal,RULES.thiefCapacity-(e.loot??0));
+          if(stolen>0){this.money-=stolen;e.loot=(e.loot??0)+stolen;this.effect('steal',p.floor,p.x,stolen);}
+        }
       }
       return;
     }
     e.target=undefined;
-    if(!carrying&&Math.abs(goal-e.q)<=RULES.captureRange){
+    if(fleeing){
+      this.moveEnemy(e,goal,dt,false);
+      if(e.q===goal){e.hp=0;e.loot=0;e.deadAt=this.time-RULES.enemyDeathDuration;}
+      return;
+    }
+    if(!carrying&&!treasury&&Math.abs(goal-e.q)<=RULES.captureRange){
       if(this.lord.state==='returning'||this.lord.state==='carried'||this.lord.grace>0){e.action='idle';return;}
       if(e.hanging){e.hanging=false;e.landing=RULES.scoutLandTime;}
       if(e.landing>0){e.landing=Math.max(0,e.landing-dt);e.action='fall';return;}
@@ -472,7 +524,7 @@ export class Battle {
       }
       if(this.lord.grabber&&this.lord.grabber!==e.uid){e.action='idle';return;}
       this.lord.grabber=e.uid;this.lord.state='grabbing';e.action='grab';e.grab+=dt;
-      if(e.grab>=RULES.captureTime){this.lord.state='carried';this.lord.carrier=e.uid;this.lord.carriedAt=this.time;this.lord.grabber=undefined;this.lord.shield=0;this.stats.captures++;e.grab=0;e.hanging=false;e.action='carry';e.actionUntil=0;e.face=routeFacing(e.q,-1);this.tell('主公被抓了');}
+      if(e.grab>=RULES.captureTime){this.lord.state='carried';this.lord.carrier=e.uid;this.lord.carriedAt=this.time;this.lord.grabber=undefined;this.lord.shield=0;this.stats.captures++;e.grab=0;e.hanging=false;e.action='carry';e.actionUntil=0;e.exit=nearestExit(e.q,this.wave,this.waveTime);const exit=LEVEL.entries[e.exit];e.face=routeFacing(e.q,routeAt(exit.floor,exit.x)-e.q);this.tell('主公被抓了');}
       return;
     }
     if(this.lord.grabber===e.uid)this.interruptGrab();
@@ -486,7 +538,7 @@ export class Battle {
     // Carrying uses one actual route speed for every troop, including stairs.
     const speed=(carrying?RULES.carryMoveSpeed:baseSpeed*RULES.movementSpeedScale)*Math.max(RULES.minimumSpeed,1-e.slow);
     const amount=Math.min(Math.abs(goal-e.q),speed*dt);
-    e.q=Math.max(0,Math.min(destination,e.q+direction*amount));
+    e.q=amount===Math.abs(goal-e.q)?goal:Math.max(0,Math.min(destination,e.q+direction*amount));
     e.face=routeFacing(e.q,direction);
     e.action=carrying?'carry':e.hanging?'climb':'walk';
   }

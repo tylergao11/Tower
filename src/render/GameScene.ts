@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
-import { CARD, HERO_SKILLS, LEVEL, RULES, VIEW } from '../config';
+import { CARD, ENEMY, HERO_SKILLS, LEVEL, RULES, VIEW } from '../config';
 import { Battle } from '../game/Battle';
-import { lastColumn, position } from '../game/map';
+import { entryOpen, lastColumn, position } from '../game/map';
 import type { Action, Command, Effect } from '../game/types';
 import { AudioPlayer, BGM_BYTES } from '../platform';
 import { stageCoordinates, stagePoint } from '../viewport';
@@ -37,12 +37,12 @@ export class GameScene extends Phaser.Scene implements UIController {
   private accumulator=0;
   private uiTimer=0;
   private heard=0;
+  private announcedBoss=0;
   private worldLabels!:WorldLabels;
   private apertures!:Phaser.GameObjects.Graphics;
   private scenery=new Map<string,ActorView>();
   private fx=new Map<string,ActorView>();
   private sprites=new Map<string,Phaser.GameObjects.Image>();
-  private bagViews=new Map<number,{root:Phaser.GameObjects.Container;amount:Phaser.GameObjects.Text}>();
   private projectileOffsets=new Map<number,{x:number;y:number}>();
   private retiring=new Map<number,{view:ActorView;since:number;action:string}>();
   private point?:{floor:number;x:number};
@@ -118,7 +118,7 @@ export class GameScene extends Phaser.Scene implements UIController {
   restart(select:boolean){
     this.cancelDrag();
     const deck=[...this.battle.deck];this.battle=new Battle();this.battle.deck=deck;
-    this.selectedCard=undefined;this.selectedUnit=undefined;this.dragUnit=undefined;this.accumulator=0;this.heard=0;
+    this.selectedCard=undefined;this.selectedUnit=undefined;this.dragUnit=undefined;this.accumulator=0;this.heard=0;this.announcedBoss=0;
     this.campDancersDismissed=false;this.campTime=0;
     for(const view of this.units.values())view.destroy();for(const view of this.enemies.values())view.destroy();
     this.units.clear();this.enemies.clear();
@@ -149,6 +149,8 @@ export class GameScene extends Phaser.Scene implements UIController {
     this.scrollDrag(Math.min(delta/1000,RULES.maxFrameSeconds));
     this.accumulator+=Math.min(delta/1000,RULES.maxFrameSeconds);
     while(this.accumulator>=RULES.step){this.battle.step(RULES.step);this.accumulator-=RULES.step;}
+    const arrival=this.battle.effects.find(effect=>effect.kind==='boss'&&effect.uid>this.announcedBoss);
+    if(arrival&&!this.battle.paused){this.announcedBoss=arrival.uid;this.cameras.main.shake(VIEW.boss.shakeMs,VIEW.boss.shakeIntensity);}
     this.paint();this.uiTimer+=delta/1000;
     if(this.uiTimer>=VIEW.uiInterval){this.uiTimer=0;this.ui.update();}
     for(const effect of this.battle.effects)if(effect.uid>this.heard){this.audioPlayer.play(effect.kind);this.heard=effect.uid;}
@@ -214,12 +216,6 @@ export class GameScene extends Phaser.Scene implements UIController {
       speed(drag.y,camera.y,camera.y+camera.height)*VIEW.camera.edgeSpeed*seconds);
     this.previewDrag(drag.x,drag.y);
   }
-  private bagsAt(x:number,y:number){
-    return this.battle.bags.filter(bag=>{
-      const bounds=this.bagViews.get(bag.uid)?.root.getBounds(),pad=VIEW.input.bagPadding;
-      return bounds&&x>=bounds.left-pad&&x<=bounds.right+pad&&y>=bounds.top-pad&&y<=bounds.bottom+pad;
-    });
-  }
   private bindControls(){
     const stage=this.inputStage=document.getElementById('stage')!;
     const beginDrag=(drag:FieldGesture)=>{
@@ -238,7 +234,7 @@ export class GameScene extends Phaser.Scene implements UIController {
       const coordinates=stageCoordinates(stage),screen=coordinates(event.clientX,event.clientY),p=this.cameras.main.getWorldPoint(screen.x,screen.y);
       if(!fromDeck&&!this.inCamera(screen.x,screen.y))return;
       this.arrival=undefined;
-      const unit=!fromDeck&&!this.selectedCard&&!this.bagsAt(p.x,p.y).length?this.battle.units.find(u=>u.def.mobile&&u.hp>0&&this.units.get(u.uid)?.bounds.contains(p.x,p.y)):undefined;
+      const unit=!fromDeck&&!this.selectedCard?this.battle.units.find(u=>u.def.mobile&&u.hp>0&&this.units.get(u.uid)?.bounds.contains(p.x,p.y)):undefined;
       const drag:FieldGesture={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:screen.x,lastY:screen.y,x:screen.x,y:screen.y,moved:false,fromDeck,coordinates,card,unit:unit?.uid,mode:'pending'};
       this.gesture=drag;
       if(card||unit)drag.holdTimer=window.setTimeout(()=>{if(this.gesture===drag&&!drag.moved)beginDrag(drag);},VIEW.input.longPressMs);
@@ -311,7 +307,6 @@ export class GameScene extends Phaser.Scene implements UIController {
   }
   private clickField(x:number,y:number){
     const b=this.battle;if(!b.active||b.paused||!this.insideField(x,y))return;
-    const bags=this.bagsAt(x,y);if(bags.length){for(const bag of bags)b.command({type:'collect',uid:bag.uid});return;}
     if(this.selectedCard){const slot=this.fieldPoint(x,y,this.selectedCard);if(b.command({type:'deploy',card:this.selectedCard,...slot,facing:slot.floor%2?1:-1}))this.selectedCard=undefined;return;}
     const picked=b.units.filter(u=>this.units.get(u.uid)?.bounds.contains(x,y));
     if(picked.length>1){this.selectedUnit=undefined;this.ui.chooseUnits(picked);return;}
@@ -382,7 +377,8 @@ export class GameScene extends Phaser.Scene implements UIController {
       const p=this.screen(u.floor,u.x),ceiling=u.def.surfaces.includes('ceiling');
       let lift=u.def.surfaces.length===1&&u.def.surfaces[0]==='wall'?VIEW.wallLift:0;
       view.root.setPosition(p.x,p.y-lift).setDepth(100+u.floor*100+(ceiling?0:10)).setAlpha(u.ready>0?.45:1);
-      const unitAction=u.ready>0?'deploy':u.openUntil>b.time?'open':u.action==='attack'&&!u.def.mobile?'activate':u.def.kind==='income'?(b.bags.some(bag=>bag.source===u.uid)?'waiting':'produce'):u.def.manual&&u.cooldown>0?'load':u.def.kind==='wind'?'activate':u.hp<u.def.hp*.4&&!u.def.mobile?'damaged':u.action;
+      const incomeAvailable=b.active;
+      const unitAction=u.ready>0?'deploy':u.openUntil>b.time?'open':u.action==='attack'&&!u.def.mobile?'activate':u.def.kind==='income'?(incomeAvailable?'produce':'idle'):u.def.manual&&u.cooldown>0?'load':u.def.kind==='wind'?'activate':u.def.destructible&&u.hp<u.def.hp*.4&&!u.def.mobile?'damaged':u.action;
       let progress=unitAction==='deploy'?1-u.ready/RULES.buildTime:unitAction==='hit'?1-u.hit/RULES.hitFlash:unitAction==='load'?1-u.cooldown/u.def.interval:unitAction==='attack'||unitAction==='heal'||unitAction==='activate'&&u.action==='attack'?1-(u.actionUntil-b.time)/RULES.attackPoseTime:undefined;
       if(unitAction==='skill')progress=1-(u.actionUntil-b.time)/RULES.heroSkillPoseTime;
       if(u.def.kind==='hammer'&&unitAction==='activate'){
@@ -397,11 +393,11 @@ export class GameScene extends Phaser.Scene implements UIController {
         g.lineStyle(8,0x2b1c0a,.95).strokeRoundedRect(box.x-padding,box.y-padding,box.width+padding*2,box.height+padding*2,12);
         g.lineStyle(4,0xffd34f,1).strokeRoundedRect(box.x-padding,box.y-padding,box.width+padding*2,box.height+padding*2,12);
       }
-      if(u.ready<=0)this.worldLabels.show('unit-'+u.uid,u.def.kind==='income'?'军需账房 · 产军饷':u.def.name,p.x,ceiling?view.bounds.bottom+17:p.y+20,u.def.kind==='income'?'economy':'name');
+      if(u.ready<=0)this.worldLabels.show('unit-'+u.uid,`${u.def.name}${u.level>0?` · ${u.level+1}级`:''}${u.def.kind==='income'?' · 产军饷':''}`,p.x,ceiling?view.bounds.bottom+17:p.y+20,u.def.kind==='income'?'economy':'name');
       if(u.def.kind==='wind'&&u.ready<=0)fx('wind-'+u.uid,'FX-wind',p.x,p.y,VIEW.windSize,'play',(b.time%1.5)/1.5);
       if(u.def.manual){this.health(p.x,p.y-lift-VIEW.deviceHeight-15,u.def.interval-u.cooldown,u.def.interval,VIEW.colors.gold,58);if(u.cooldown<=0)sprite('ready-'+u.uid,'UI-ICONS/play',p.x,p.y-lift-VIEW.deviceHeight-36,26,30);}
       const healthY=u.def.mobile?p.y-(u.def.hero?VIEW.heroHeight:VIEW.guardHeight)-15:p.y-lift-VIEW.deviceHeight-5;
-      if(u.healthRevealed||this.selectedUnit===u.uid)this.health(p.x,healthY,u.hp,u.def.hp,VIEW.colors.green,u.def.hero?86:63);
+      if(u.def.destructible&&(u.healthRevealed||this.selectedUnit===u.uid))this.health(p.x,healthY,u.hp,u.def.hp,VIEW.colors.green,u.def.hero?86:63);
       if(this.selectedUnit===u.uid){
         m.lineStyle(3,VIEW.colors.gold,1);m.strokeEllipse(p.x,p.y-lift-5,100,28);
         if(u.def.range>0){m.lineStyle(2,VIEW.colors.gold,.35);m.strokeEllipse(p.x,p.y-20,u.def.range*(VIEW.x1-VIEW.x0)/lastColumn*2,65);}
@@ -410,7 +406,8 @@ export class GameScene extends Phaser.Scene implements UIController {
     const enemyIds=new Set(b.enemies.map(e=>e.uid));
     for(const [uid,view] of this.enemies)if(!enemyIds.has(uid)){view.destroy();this.enemies.delete(uid);}
     for(const e of b.enemies){
-      let view=this.enemies.get(e.uid);if(!view){view=new ActorView(this,e.def.id,VIEW.actorHeight*(e.def.heavy?1.2:1));this.enemies.set(e.uid,view);}
+      const height=VIEW.actorHeight*(e.def.boss?VIEW.boss.heightScale:e.def.heavy?1.2:1);
+      let view=this.enemies.get(e.uid);if(!view){view=new ActorView(this,e.def.id,height);this.enemies.set(e.uid,view);}
       const p=this.enemyScreen(e.uid)!;
       view.root.setPosition(p.x,p.y).setDepth(120+position(e.q).floor*100).setAlpha(e.hp<=0?Math.max(0,1-(b.time-(e.deadAt||0))/RULES.enemyDeathDuration):1);
       const onStairs=position(e.q).stairs;
@@ -420,7 +417,9 @@ export class GameScene extends Phaser.Scene implements UIController {
       const carryProgress=carrying?((b.time-(b.lord.carriedAt??b.time))/RULES.carryAnimationDuration)%1:undefined;
       view.update(enemyAction,b.time,e.face,e.hit,{shield:e.shield>0,progress:carryProgress??progress});
       if(e.hanging&&!onStairs&&!e.drop){view.alignAttachment('grip',p.x,ceilingY(position(e.q).floor));p.y=view.root.y;}
-      if(e.hp>0&&(e.healthRevealed||e.uid===b.focus||e.uid===b.lord.carrier||e.def.id==='E07'))this.health(p.x,p.y-VIEW.actorHeight*(e.def.heavy?1.2:1)-12,e.hp,e.def.hp,VIEW.colors.red,e.def.heavy?90:63);
+      if(e.hp>0&&(e.healthRevealed||e.uid===b.focus||e.uid===b.lord.carrier||e.def.boss))this.health(p.x,p.y-height-12,e.hp,e.def.hp,VIEW.colors.red,e.def.heavy?90:63);
+      if(e.hp>0&&e.def.boss){g.lineStyle(4,0xf16b31,.6).strokeEllipse(p.x,p.y-5,150+Math.sin(b.time*5)*12,34);this.worldLabels.show('boss-name-'+e.uid,e.def.name,p.x,p.y-height-40,'speech');}
+      if(e.hp>0&&e.def.thief)this.worldLabels.show('thief-'+e.uid,e.loot?`携饷 ${e.loot} · 逃跑`:'刺客 · 偷军饷',p.x,p.y-height-26,'name');
       if(e.shield>0)this.health(p.x,p.y-VIEW.actorHeight-21,e.shield,e.def.shield||1,0x90b5bd,44);
       if(e.poison>0)fx('poison-'+e.uid,'FX-poison-status',p.x,p.y,VIEW.statusSize,'play',(b.time%1.1)/1.1);
       if(e.slow>0)fx('slow-'+e.uid,'FX-slow-ring',p.x,p.y+10,VIEW.statusSize);
@@ -460,7 +459,7 @@ export class GameScene extends Phaser.Scene implements UIController {
       if(speech)this.worldLabels.show('lord-speech',speech,lp.x-55,lp.y-VIEW.lordHeight-20,'speech');
       for(let floor=0;floor<3;floor++)this.worldLabels.show('tier-'+floor,['城外','城内','营帐'][floor],this.cameras.main.worldView.left+34,VIEW.floorY[floor]-59,'banner');
     }
-    this.paintBags();
+    this.paintIncome();
     for(const shot of b.projectiles){
       const p=worldPoint(shot.x,shot.y);
       if(!this.projectileOffsets.has(shot.uid)){
@@ -469,23 +468,40 @@ export class GameScene extends Phaser.Scene implements UIController {
       }
       const offset=this.projectileOffsets.get(shot.uid)!,blend=Math.max(0,1-(b.time-shot.born)/VIEW.projectileBlend);
       if(shot.kind!=='log'){p.x+=offset.x*blend;p.y+=offset.y*blend;}
-      if(shot.kind==='arrow')sprite('shot-'+shot.uid,'FX/arrow',p.x,p.y,58,11).setFlipX(true).setRotation(Math.atan2(-shot.vy,shot.vx));
+      if(shot.kind==='arrow'){
+        const piercing=(shot.maxHits??1)>1,angle=Math.atan2(-shot.vy,shot.vx),bolt=VIEW.ballistaBolt;
+        if(piercing)g.lineStyle(3,VIEW.colors.gold,.6).lineBetween(p.x-Math.cos(angle)*bolt.trail,p.y-Math.sin(angle)*bolt.trail,p.x,p.y);
+        sprite('shot-'+shot.uid,'FX/arrow',p.x,p.y,piercing?bolt.width:58,piercing?bolt.height:11).setFlipX(true).setRotation(angle);
+      }
       else if(shot.kind==='poison')sprite('shot-'+shot.uid,'FX/poison-drop',p.x,p.y,18,29);
       else sprite('shot-'+shot.uid,'MX-B/M02-log',p.x,p.y+23,80,55).setRotation(b.time*Math.sign(shot.vx)*4);
     }
     for(const effect of b.effects){
       if(effect.hero){this.paintHeroSkill(effect);continue;}
       const p=this.screen(effect.floor,effect.x),t=1-effect.life/effect.maxLife;
+      if(effect.kind==='boss'){
+        g.lineStyle(12*(1-t),0xffc15b,1-t).strokeEllipse(p.x,p.y,VIEW.boss.shockRadius*t*2,VIEW.boss.shockRadius*t*.5);
+        fx('boss-dust-'+effect.uid,'FX-dust',p.x,p.y,VIEW.boss.shockRadius*2,'play',t);
+      }
+      if(effect.kind==='promote'){
+        fx('promote-'+effect.uid,'FX-repair',p.x,p.y,VIEW.effectSize*1.4,'play',t);
+        this.worldLabels.show('promote-'+effect.uid,`升至 ${effect.value} 级`,p.x,p.y-130-t*50,'speech');
+      }
+      if(effect.kind==='steal')this.worldLabels.show('steal-'+effect.uid,`军饷 -${effect.value}`,p.x,p.y-130-t*50,'speech');
       const id=VIEW.effectArt[effect.kind];if(id)fx('effect-'+effect.uid,id,p.x,p.y,VIEW.effectSize,'play',t);
     }
     if(b.phase!=='select')for(const [key,entry] of Object.entries(LEVEL.entries)){
-      const p=this.screen(entry.floor,entry.x),opened=b.wave>=entry.wave;
+      const p=this.screen(entry.floor,entry.x),opened=entryOpen(entry,b.wave,b.waveTime);
       const warning=b.phase==='wave'&&b.wave===entry.wave&&b.waveTime<RULES.entryWarning&&key!=='A';
       if(warning)this.worldLabels.show('entry-'+key,`${key==='B'?'城门':'营地'}来敌 ${Math.ceil(RULES.entryWarning-b.waveTime)}秒`,p.x+(key==='B'?-100:100),p.y-110,'speech');
-      if(key==='A')this.worldLabels.show('exit','← 撤离口',p.x+28,p.y+40);
-      else if(!opened)this.worldLabels.show('entry-closed-'+key,`第${entry.wave}波来敌`,p.x+(key==='B'?-42:42),p.y+22);
+      if(opened)this.worldLabels.show('exit-'+key,entry.x===0?'← 撤离口':'撤离口 →',p.x+(entry.x===0?28:-42),p.y+40);
+      else if(!warning)this.worldLabels.show('entry-closed-'+key,`第${entry.wave}关开放`,p.x+(entry.x===0?42:-42),p.y+22);
     }
-    if(b.wave===LEVEL.waves.length&&b.waveTime>=16&&b.waveTime<24)sprite('boss','UI-ICONS/warning',VIEW.width/2,117,52,52);
+    const boss=b.phase==='wave'?b.pending.find(spawn=>ENEMY[spawn.enemy].boss):undefined;
+    if(boss&&boss.at-b.waveTime<=RULES.entryWarning){
+      const entry=LEVEL.entries[boss.entry],p=this.screen(entry.floor,entry.x);
+      this.worldLabels.show('boss-warning',`${ENEMY[boss.enemy].name}来袭 ${Math.ceil(boss.at-b.waveTime)}秒`,p.x+(entry.x===0?100:-100),p.y-110,'speech');
+    }
     for(const [key,view] of this.fx)if(!usedFx.has(key)){view.destroy();this.fx.delete(key);}
     for(const [key,image] of this.sprites)if(!usedSprites.has(key)){image.destroy();this.sprites.delete(key);}
     const projectileIds=new Set(b.projectiles.map(shot=>shot.uid));for(const uid of this.projectileOffsets.keys())if(!projectileIds.has(uid))this.projectileOffsets.delete(uid);
@@ -538,24 +554,13 @@ export class GameScene extends Phaser.Scene implements UIController {
     }
   }
 
-  private paintBags(){
-    const b=this.battle,live=new Set(b.bags.map(bag=>bag.uid));
-    for(const [uid,view] of this.bagViews)if(!live.has(uid)){view.root.destroy(true);this.bagViews.delete(uid);}
-    const sourceCounts=new Map<number,number>();
-    for(const bag of b.bags){
-      let view=this.bagViews.get(bag.uid);
-      if(!view){
-        const root=this.add.container(0,0).setDepth(510);
-        const back=this.add.graphics().fillStyle(0x211305,.95).fillCircle(0,0,42)
-          .lineStyle(4,0xffd34c,1).strokeCircle(0,0,42);
-        const icon=this.add.image(0,-3,'ui-money-coin').setDisplaySize(VIEW.bag.width,VIEW.bag.height);
-        const amount=this.add.text(0,38,'',{fontFamily:'Arial, sans-serif',fontSize:'30px',fontStyle:'bold',color:'#fff5b0',stroke:'#251405',strokeThickness:7,padding:{x:5,y:3}}).setOrigin(.5);
-        root.add([back,icon,amount]);view={root,amount};this.bagViews.set(bag.uid,view);
-      }
-      const index=sourceCounts.get(bag.source)||0;sourceCounts.set(bag.source,index+1);
-      const p=this.screen(bag.floor,bag.x),y=p.y-VIEW.bag.lift-Math.sin(b.time*VIEW.bag.bobSpeed+bag.uid)*VIEW.bag.bob;
-      view.root.setPosition(p.x+(index%2?48:0),y-Math.floor(index/2)*32).setScale(1+Math.sin(b.time*3+bag.uid)*.035);
-      view.amount.setText(String(bag.amount));
-    }
+  private paintIncome(){
+    const camera=this.cameras.main,edge=VIEW.income.edge;
+    this.ui.paintIncome((this.battle.active?this.battle.effects:[]).filter(effect=>effect.kind==='coin').map(effect=>{
+      const p=this.screen(effect.floor,effect.x),origin=camera.matrixCombined.transformPoint(p.x,p.y-VIEW.income.lift);
+      return {uid:effect.uid,value:effect.value!,progress:1-effect.life/effect.maxLife,
+        x:Phaser.Math.Clamp(origin.x,camera.x+edge,camera.x+camera.width-edge),
+        y:Phaser.Math.Clamp(origin.y,camera.y+edge,camera.y+camera.height-edge)};
+    }));
   }
 }

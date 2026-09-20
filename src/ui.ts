@@ -1,4 +1,4 @@
-import { CARD, CARDS, LEVEL, RULES, VIEW, type CardDef } from './config';
+import { CARD, LEVEL, RULES, VIEW, createDeck, cardAtLevel, upgradeSummary, type CardDef } from './config';
 import type { Battle } from './game/Battle';
 import { loadSave, saveProgress } from './platform';
 import { previewFor } from './render/art';
@@ -16,7 +16,7 @@ function button(action:string,label:string,primary=false,disabled=false,uid?:num
   return `<button class="paper-button${primary?' primary':''}" data-action="${action}" ${uid===undefined?'':`data-uid="${uid}"`} ${disabled?'disabled':''}>${label}</button>`;
 }
 function cardMarkup(c:CardDef,selected=false,locked=false) {
-  return `<button class="card ${selected?'chosen':''} ${c.kind==='income'?'economy-card':''} ${locked?'required-card':''}" data-card="${c.id}" aria-label="${c.name}，军饷 ${c.cost}${locked?'，必选，不可取消':''}" aria-pressed="${selected}" ${locked?'aria-disabled="true"':''}>${imageFor(c.id,'card-art')}${c.kind==='income'?'<span class="card-purpose">产军饷</span>':''}<span class="card-cooldown" aria-hidden="true"></span><span class="card-info"><strong class="card-name">${c.name}</strong><span class="card-price">${coin}${c.cost}</span></span><span class="cooldown-time"></span><span class="card-check" aria-hidden="true">${locked?'必选':'✓'}</span></button>`;
+  return `<button class="card ${selected?'chosen':''} ${c.kind==='income'?'economy-card':''} ${locked?'required-card':''}" data-card="${c.id}" aria-label="${c.name}，军饷 ${c.cost}${locked?'，固定携带':''}" aria-pressed="${selected}" ${locked?'aria-disabled="true"':''}>${imageFor(c.id,'card-art')}${c.kind==='income'?'<span class="card-purpose">产军饷</span>':''}<span class="card-cooldown" aria-hidden="true"></span><span class="card-info"><strong class="card-name">${c.name}</strong><span class="card-price">${coin}${c.cost}</span></span><span class="cooldown-time"></span><span class="card-check" aria-hidden="true">${locked?'固定':'✓'}</span></button>`;
 }
 function soundIcon(){return '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 12h6l8-7v22l-8-7H4z" fill="currentColor"/><path d="M23 9q8 7 0 14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';}
 
@@ -36,14 +36,16 @@ export class UI {
   private dragPreview:HTMLDivElement;
   private dragId='';
   private soundOn=true;
-  private selectionNotice='';
+  private incomeViews=new Map<number,HTMLElement>();
   constructor(private controller:UIController) {
-    this.deckSelection=[...LEVEL.defaultDeck];
+    this.deckSelection=[...this.saved.deck];
     this.root=document.getElementById('ui')!;
     this.root.innerHTML=`
       <div class="battle-header"><div class="game-logo" role="img" aria-label="主公快跑，新野"></div><div class="topbar"><div class="chapter"><strong>新野 · 守城</strong><span id="wave-status"></span></div><div class="top-actions"><button class="paper-button sound-button" data-action="sound" aria-label="关闭声音" aria-pressed="true">${soundIcon()}</button><button class="paper-button pause-button" data-action="pause" aria-label="暂停"><i></i><i></i></button></div></div></div>
       <div id="toast" class="hidden" role="status"></div><div id="unit-detail"></div>
-      <div class="battle-bottom"><div class="motto motto-left">守住新野<br>护住主公<small>— 蜀军军令 —</small></div><div class="battle-tray"><div class="treasury"><span>${coin}</span><strong id="money">200</strong><small>军饷</small></div><div id="deck-bar"></div><div class="emergency"><button class="skill skill-shield" data-action="shield" aria-label="护驾"><i></i><strong>护驾</strong></button></div></div><div class="motto motto-right">人在城在<br>主公无恙<small>— 新野营帐 —</small></div></div>
+      <div id="boss-entry" role="status" hidden></div>
+      <div id="boss-health" hidden><strong></strong><div><i></i></div><span></span></div>
+      <div class="battle-bottom"><div class="motto motto-left">守住新野<br>护住主公<small>— 蜀军军令 —</small></div><div class="battle-tray"><div class="treasury"><span>${coin}</span><strong id="money">${RULES.money}</strong><small id="supply-left">待发${RULES.lordWaveSupply}</small></div><div id="deck-bar"></div><div class="emergency"><button class="skill skill-shield" data-action="shield" aria-label="护驾"><i></i><strong>护驾</strong></button></div></div><div class="motto motto-right">人在城在<br>主公无恙<small>— 新野营帐 —</small></div></div>
       <div id="lord-danger" aria-hidden="true" hidden></div>
       <div id="lord-direction" role="status" aria-label="主公在视野外" hidden><svg viewBox="0 0 80 80" aria-hidden="true"><path d="M12 28H43V13L70 40 43 67V52H12Z"/></svg><strong>主公</strong></div>
       <div id="modal"></div>`;
@@ -117,25 +119,38 @@ export class UI {
   }
   hideDrag(){this.dragPreview.hidden=true;this.root.classList.remove('dragging');}
   scrollCards(distance:number){this.deck.scrollLeft+=distance;}
+  paintIncome(incomes:Array<{uid:number;value:number;x:number;y:number;progress:number}>){
+    const live=new Set(incomes.map(income=>income.uid));
+    for(const [uid,view] of this.incomeViews)if(!live.has(uid)){view.remove();this.incomeViews.delete(uid);}
+    if(!incomes.length)return;
+    const bounds=this.root.querySelector('.treasury .coin')!.getBoundingClientRect();
+    const target=stageCoordinates(document.getElementById('stage')!)(bounds.left+bounds.width/2,bounds.top+bounds.height/2);
+    for(const income of incomes){
+      let view=this.incomeViews.get(income.uid);
+      if(!view){
+        view=document.createElement('div');view.className='income-flight';view.setAttribute('aria-hidden','true');
+        view.innerHTML=`${coin}<strong>+${income.value}</strong>`;this.root.append(view);this.incomeViews.set(income.uid,view);
+      }
+      const t=income.progress,ease=t*t;
+      const x=income.x+(target.x-income.x)*ease,y=income.y+(target.y-income.y)*ease-Math.sin(t*Math.PI)*VIEW.income.arc;
+      view.style.transform=`translate(${x}px,${y}px) translate(-50%,-50%) scale(${1-t*.35})`;
+      view.style.opacity=String(1-Math.pow(t,4));
+    }
+  }
   private setDetail(html:string){if(this.detailMarkup!==html){this.detailMarkup=html;this.root.querySelector('#unit-detail')!.innerHTML=html;}}
   private click(event:MouseEvent) {
     const target=(event.target as Element).closest<HTMLButtonElement>('button');if(!target||target.disabled)return;
     if(target.dataset.card){
       const id=target.dataset.card;
       if(this.controller.battle.phase==='select'){
-        if(LEVEL.requiredCards.includes(id))return;
-        this.selectionNotice='';
-        if(this.deckSelection.includes(id))this.deckSelection=this.deckSelection.filter(c=>c!==id);
-        else if(this.deckSelection.length<LEVEL.deckSize)this.deckSelection.push(id);
-        else this.selectionNotice='已满';
+        if(!LEVEL.loadout.heroes.includes(id))return;
+        this.deckSelection=createDeck([id]);
         this.selection();
       }
       return;
     }
     const action=target.dataset.action;if(!action)return;
-    if(action==='reset-deck'){this.deckSelection=[...LEVEL.requiredCards];this.selectionNotice='';this.selection();return;}
     if(action==='start'){
-      if(this.deckSelection.length!==LEVEL.deckSize)return;
       this.saved.deck=[...this.deckSelection];saveProgress(this.saved);this.controller.start(this.deckSelection);
     }else if(action==='restart'){this.pauseConfirm=true;this.pausePanel();}
     else if(action==='confirm-restart'){this.pauseConfirm=false;this.controller.restart(true);}
@@ -151,9 +166,8 @@ export class UI {
   private selection() {
     const scrollTop=this.modal.querySelector('.selection-cards')?.scrollTop||0;
     this.modal.className='visible selection-modal';
-    const missing=LEVEL.deckSize-this.deckSelection.length;
-    const roster=[...CARDS].sort((a,b)=>Number(!!b.mobile)-Number(!!a.mobile));
-    this.modal.innerHTML=`<section class="selection panel" aria-label="布防选卡"><header class="panel-heading"><div><span class="faction-seal">蜀</span><h1>新野布防</h1></div><strong class="loadout-count ${this.selectionNotice?'is-full':''}" role="status"><span>${this.selectionNotice||'出战'}</span><b>${this.deckSelection.length}<em>/ ${LEVEL.deckSize}</em></b></strong></header><div class="selection-cards">${roster.map(c=>`<div class="selection-choice ${c.hero?'hero-choice':''}">${cardMarkup(c,this.deckSelection.includes(c.id),LEVEL.requiredCards.includes(c.id))}<span>${c.tip}</span></div>`).join('')}</div><footer class="selection-footer"><div class="selection-actions">${button('reset-deck','重置')}${button('start',missing?`再选 ${missing} 张`:'开始布防',true,missing>0)}</div></footer></section>`;
+    const choices=(ids:string[],fixed:boolean)=>ids.map(id=>{const c=CARD[id];return `<div class="selection-choice ${fixed?'fixed-choice':'hero-choice'}">${cardMarkup(c,this.deckSelection.includes(id),fixed)}<span>${c.tip}</span></div>`;}).join('');
+    this.modal.innerHTML=`<section class="selection panel" aria-label="布防选卡"><header class="panel-heading"><div><span class="faction-seal">蜀</span><h1>新野布防</h1></div><strong class="loadout-count" role="status"><span>出战</span><b>${this.deckSelection.length}<em>张</em></b></strong></header><div class="selection-cards"><h2 class="selection-label">选择一位武将</h2>${choices(LEVEL.loadout.heroes,false)}<h2 class="selection-label">随军器械 · 固定携带</h2>${choices(LEVEL.loadout.fixedCards,true)}</div><footer class="selection-footer"><small>器械杀敌升级 · 拒马拦截助攻成长 · 保护军饷库<br>开局${RULES.money} · 每关补给${RULES.lordWaveSupply}，清场补齐<br>共${LEVEL.waves.length}关 · 第${LEVEL.entries.B.wave}关城门开放 · 最后${LEVEL.waves.at(-1)?.name}三层来敌</small><div class="selection-actions">${button('start','开始布防',true)}</div></footer></section>`;
     this.modal.querySelector('.selection-cards')!.scrollTop=scrollTop;
   }
   private pausePanel() {
@@ -162,9 +176,10 @@ export class UI {
   }
   private settlement() {
     const b=this.controller.battle,won=b.phase==='won';
+    const exit=b.escapedVia?LEVEL.entries[b.escapedVia]:undefined;
     if(won){this.saved.cleared=true;this.saved.gold ||=b.perfect;saveProgress(this.saved);}
     this.modal.className='visible';
-    this.modal.innerHTML=`<section class="settlement panel"><span class="faction-seal ${b.perfect?'gold-seal':''}">${b.perfect?'金':'蜀'}</span><h1>${won?(b.perfect?'金印 · 主公未被抓':'守住了'):'主公被掳走了'}</h1><p>${won?'八波曹军已退，新野守住了。':`刘备被${escapeText(b.loser)}带出城外左侧撤离口。`}</p><div class="battle-record">${[['被抓',b.stats.captures],['解救',b.stats.rescues],['机关损失',b.stats.losses],['消灭',b.stats.kills],['用时',`${Math.floor(b.stats.time/60)}分${Math.floor(b.stats.time%60)}秒`]].map(([label,value])=>`<span>${label}<strong>${value}</strong></span>`).join('')}</div><div class="modal-actions">${button('retry','原阵容重试',true)}${button('change','换阵再战')}</div></section>`;
+    this.modal.innerHTML=`<section class="settlement panel"><span class="faction-seal ${b.perfect?'gold-seal':''}">${b.perfect?'金':'蜀'}</span><h1>${won?(b.perfect?'金印 · 主公未被抓':'守住了'):'主公被掳走了'}</h1><p>${won?`${LEVEL.waves.length}关曹军已退，新野守住了。`:`刘备被${escapeText(b.loser)}带出${exit?`${exit.floor+1}层${exit.name}`:''}撤离口。`}</p><div class="battle-record">${[['被抓',b.stats.captures],['解救',b.stats.rescues],['机关损失',b.stats.losses],['消灭',b.stats.kills],['用时',`${Math.floor(b.stats.time/60)}分${Math.floor(b.stats.time%60)}秒`]].map(([label,value])=>`<span>${label}<strong>${value}</strong></span>`).join('')}</div><div class="modal-actions">${button('retry','原阵容重试',true)}${button('change','换阵再战')}</div></section>`;
   }
   chooseUnits(units:Array<{uid:number;def:CardDef}>) {this.unitChoices=units.map(u=>u.uid);this.update();}
   update() {
@@ -177,7 +192,22 @@ export class UI {
     this.root.classList.toggle('selecting',b.phase==='select');
     const money=this.root.querySelector<HTMLElement>('#money')!,balance=String(Math.floor(b.money));
     money.textContent=balance;money.style.fontSize=balance.length>3?`${Math.max(22,Math.floor(160/balance.length))}px`:'';
-    this.root.querySelector('#wave-status')!.textContent=b.phase==='prepare'?`布防 ${Math.ceil(b.countdown)} 秒`:b.phase==='rest'?`整备 ${Math.ceil(b.countdown)} 秒`:`第 ${Math.max(1,b.wave)} / ${LEVEL.waves.length} 波`;
+    money.setAttribute('aria-label',`军饷 ${balance}`);
+    this.root.querySelector('#supply-left')!.textContent=b.phase==='rest'?`下波${RULES.lordWaveSupply}`:b.active?(b.lordSupply>0?`待发${b.lordSupply}`:'补给已齐'):'军饷';
+    const currentWave=Math.max(1,b.wave),waveName=LEVEL.waves[currentWave-1]?.name;
+    this.root.querySelector('#wave-status')!.textContent=b.phase==='prepare'?`布防 ${Math.ceil(b.countdown)} 秒`:b.phase==='rest'?`整备 ${Math.ceil(b.countdown)} 秒`:waveName?`${waveName} · ${currentWave}/${LEVEL.waves.length}`:`第 ${currentWave} / ${LEVEL.waves.length} 关`;
+    const boss=b.enemies.find(e=>e.def.boss&&e.hp>0),bossHealth=this.root.querySelector<HTMLElement>('#boss-health')!,bossEntry=this.root.querySelector<HTMLElement>('#boss-entry')!;
+    const arrival=b.effects.find(e=>e.kind==='boss');
+    bossHealth.hidden=!boss||!b.active;bossEntry.hidden=!boss||!arrival||!b.active;
+    if(boss){
+      bossHealth.querySelector('strong')!.textContent=`${boss.def.name} · ${boss.def.title??''}`;
+      bossHealth.querySelector('i')!.style.width=`${Math.max(0,boss.hp/boss.def.hp*100)}%`;
+      bossHealth.querySelector('span')!.textContent=`${Math.ceil(boss.hp)} / ${boss.def.hp}`;
+      if(arrival){
+        if(bossEntry.dataset.uid!==String(arrival.uid)){bossEntry.dataset.uid=String(arrival.uid);bossEntry.innerHTML=`${imageFor(boss.def.id)}<div><small>${escapeText(waveName??'强敌来袭')} · ${escapeText(boss.def.title??'')}</small><strong>${escapeText(boss.def.name)}</strong><span>${escapeText(boss.def.line??'')}</span></div>`;}
+        bossEntry.style.opacity=String(Math.min(1,arrival.life/(arrival.maxLife*.2)));
+      }
+    }
     const toast=this.root.querySelector('#toast')!;toast.classList.toggle('hidden',b.time>=b.messageUntil||!b.message||b.phase==='select');toast.textContent=b.message;
     for(const card of this.deck.querySelectorAll<HTMLElement>('[data-card]')){
       const id=card.dataset.card!,def=CARD[id],cd=b.cooldowns[id]||0,selected=this.controller.selectedCard===id;
@@ -192,13 +222,18 @@ export class UI {
     const selected=b.units.find(u=>u.uid===this.controller.selectedUnit);
     if(selected){
       this.unitChoices=[];
-      const def=selected.def,refund=Math.floor(def.cost*RULES.refund*selected.hp/def.hp),unavailable=!b.active||b.paused;
-      this.setDetail(`${imageFor(def.id)}<div class="unit-description"><strong>${def.name}</strong><span>${def.mobile?'生命':'耐久'} ${Math.ceil(selected.hp)} / ${def.hp}</span><span>${def.tip}</span></div>${def.manual?button('activate',selected.ready>0?'布设中':selected.cooldown>0?`装填 ${Math.ceil(selected.cooldown)}秒`:'发动',true,unavailable||selected.cooldown>0||selected.ready>0,selected.uid):''}${def.kind==='log'&&b.time-selected.born<RULES.faceWindow?button('turn',selected.facing<0?'朝左 ←':'朝右 →',false,unavailable,selected.uid):''}${button('sell',`${def.mobile?'撤回':'拆除'} +${refund}`,false,unavailable,selected.uid)}<button class="detail-close" data-action="deselect" aria-label="关闭详情">×</button>`);
+      const def=selected.def,refund=b.refund(selected),unavailable=!b.active||b.paused;
+      const durability=def.destructible?`${def.mobile?'生命':'耐久'} ${Math.ceil(selected.hp)} / ${def.hp}`:'不可摧毁';
+      const supply=def.income?`<span>累计产出 ${selected.incomePaid} · 累计投入 ${selected.invested}</span>`:'';
+      const piercing=def.pierce?`<span>每${def.interval}秒一箭 · 每次贯穿后保留${Math.round((def.pierceFalloff??1)*100)}%伤害</span>`:'';
+      const next=def.upgrades?.[selected.level];
+      const upgrade=next?`<div class="unit-upgrade"><span>${def.kind==='barricade'?'拦截助攻':'击杀'} ${selected.kills} / ${next.kills} · 自动升至 ${selected.level+2} 级</span><small>${upgradeSummary(def,cardAtLevel(def.id,selected.level+1))}</small></div>`:def.upgrades?`<span class="upgrade-complete">已满级 · 累计${def.kind==='barricade'?'助攻':'击杀'} ${selected.kills}</span>`:'';
+      this.setDetail(`${imageFor(def.id)}<div class="unit-description"><strong>${def.name}${def.upgrades?` · ${selected.level+1}级`:''}</strong><span>${durability}</span><span>${def.tip}</span>${supply}${piercing}${upgrade}</div><div class="unit-actions">${def.manual?button('activate',selected.ready>0?'布设中':selected.cooldown>0?`装填 ${Math.ceil(selected.cooldown)}秒`:'发动',true,unavailable||selected.cooldown>0||selected.ready>0,selected.uid):''}${def.kind==='log'&&b.time-selected.born<RULES.faceWindow?button('turn',selected.facing<0?'朝左 ←':'朝右 →',false,unavailable,selected.uid):''}${button('sell',`${def.mobile?'撤回':'拆除'} +${refund}`,false,unavailable,selected.uid)}</div><button class="detail-close" data-action="deselect" aria-label="关闭详情">×</button>`);
     }else if(this.controller.selectedCard){this.unitChoices=[];this.setDetail('');}
     else{
       const choices=b.units.filter(u=>u.hp>0&&this.unitChoices.includes(u.uid));this.unitChoices=choices.map(u=>u.uid);
       this.setDetail(choices.length?`<div class="stack-choice">${choices.map(u=>`<button data-action="select" data-uid="${u.uid}">${imageFor(u.def.id)}<strong>${u.def.name}</strong></button>`).join('')}</div>`:'');
     }
   }
-  reset(){this.lastPhase='';this.setDetail('');this.hideDrag();this.unitChoices=[];this.pauseConfirm=false;this.update();}
+  reset(){this.lastPhase='';this.setDetail('');this.hideDrag();this.paintIncome([]);this.unitChoices=[];this.pauseConfirm=false;this.update();}
 }

@@ -1,4 +1,4 @@
-import { CARD, LEVEL } from './config';
+import { LEVEL, createDeck } from './config';
 import bgmUrl from '../assets/audio/liu-run-bgm-v1.mp3';
 import { GameMusic } from './audio/GameMusic';
 
@@ -10,13 +10,11 @@ export function loadSave():Save {
   try {
     const value=JSON.parse(localStorage.getItem(key)||'null');
     if(value&&Array.isArray(value.deck)){
-      const deck=[...new Set<string>(value.deck.filter((id:unknown):id is string=>typeof id==='string'&&Object.hasOwn(CARD,id)))];
-      const oldDefault=['G01','G02','G04','G05','G06','G07','M01','S01'];
-      const wasOldDefault=deck.length===oldDefault.length&&deck.every(id=>oldDefault.includes(id));
-      return {deck:deck.length===LEVEL.deckSize&&!wasOldDefault&&LEVEL.requiredCards.every(id=>deck.includes(id))?deck:[...LEVEL.defaultDeck],cleared:value.cleared===true,gold:value.gold===true};
+      const deck=createDeck(value.deck.filter((id:unknown):id is string=>typeof id==='string'));
+      return {deck,cleared:value.cleared===true,gold:value.gold===true};
     }
   } catch { /* A blocked store does not prevent playing. */ }
-  return {deck:[...LEVEL.defaultDeck],cleared:false,gold:false};
+  return {deck:createDeck(),cleared:false,gold:false};
 }
 export function saveProgress(value:Save) {try {localStorage.setItem(key,JSON.stringify(value));} catch { /* Session play remains available. */ }}
 
@@ -46,8 +44,17 @@ export class AudioPlayer {
   destroy(){this.music.destroy();}
   play(kind:string) {
     const context=this.music.context;
-    if(!this.enabled||!context||context.state!=='running'||context.currentTime-this.last<.075)return;
+    if(!this.enabled||!context||context.state!=='running'||kind!=='boss'&&context.currentTime-this.last<.075)return;
     this.last=context.currentTime;
+    if(kind==='boss'){
+      for(const [frequency,delay] of [[65,0],[49,.18],[98,.38]]){
+        const tone=context.createOscillator(),volume=context.createGain(),at=context.currentTime+delay;
+        tone.type='sawtooth';tone.frequency.setValueAtTime(frequency,at);tone.frequency.exponentialRampToValueAtTime(frequency*.55,at+.9);
+        volume.gain.setValueAtTime(.001,at);volume.gain.exponentialRampToValueAtTime(.055,at+.025);volume.gain.exponentialRampToValueAtTime(.001,at+1.1);
+        tone.connect(volume);volume.connect(context.destination);tone.start(at);tone.stop(at+1.12);
+      }
+      return;
+    }
     const oscillator=context.createOscillator(),gain=context.createGain();
     const frequencies:Record<string,number>={coin:880,rescue:660,shield:330,slam:80,hit:140,break:100};
     oscillator.type=kind==='coin'||kind==='rescue'?'sine':'triangle';

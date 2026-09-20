@@ -1,4 +1,4 @@
-import type { CardDef, EnemyDef, HeroKind } from '../config';
+import type { CardDef, EnemyDef, HeroKind, LEVEL } from '../config';
 export type Phase='select'|'prepare'|'wave'|'rest'|'won'|'lost';
 export type Action='idle'|'walk'|'attack'|'skill'|'hit'|'grab'|'carry'|'climb'|'fall'|'dead'|'heal'|'open'|'struggle'|'cheer';
 export interface Drop { fromFloor:number; toFloor:number; elapsed:number }
@@ -7,10 +7,12 @@ export interface Enemy {
   hanging:boolean; landing:number; action:Action; actionUntil:number; attackCd:number; grab:number;
   stun:number; controlGrace:number; poison:number; slow:number; hit:number; deadAt?:number;
   lastAttacker?:number; drop?:Drop; blockedBy?:number; target?:number; healthRevealed?:boolean;
+  exit?:keyof typeof LEVEL.entries;
+  loot?:number;
 }
 export interface Unit {
-  uid:number; def:CardDef; floor:number; x:number; home:number; hp:number; facing:number;
-  born:number; ready:number; cooldown:number; production:number; hit:number; action:Action; actionUntil:number;
+  uid:number; def:CardDef; level:number; kills:number; invested:number; floor:number; x:number; home:number; hp:number; facing:number;
+  born:number; ready:number; cooldown:number; production:number; incomePaid:number; hit:number; action:Action; actionUntil:number;
   pending:number; openUntil:number; blockedEnemy?:number; target?:number; engaged?:boolean; skillCooldown:number; healthRevealed?:boolean;
 }
 export interface Lord {
@@ -20,9 +22,8 @@ export interface Lord {
 export interface Projectile {
   uid:number; kind:'arrow'|'poison'|'log'; team:'friendly'|'enemy'; x:number;y:number;vx:number;vy:number;
   startX:number;startY:number;born:number;
-  damage:number; source:number; floor:number; life:number; hitIds:Set<number>;
+  damage:number; source:number; floor:number; life:number; hitIds:Set<number>; maxHits?:number; damageFalloff?:number;
 }
-export interface Bag { uid:number; source:number;floor:number;x:number;amount:number;born:number }
 export interface Effect { uid:number;kind:string;floor:number;x:number;life:number;maxLife:number;value?:number;hero?:HeroKind;facing?:number }
 export interface BattleStats { captures:number;rescues:number;losses:number;kills:number;time:number }
 export type Command =
@@ -30,6 +31,5 @@ export type Command =
   | {type:'sell'|'activate'|'turn';uid:number}
   | {type:'rally';uid:number;x:number}
   | {type:'focus';uid:number}
-  | {type:'collect';uid:number}
   | {type:'shield'};
 export interface Spawn { entry:'A'|'B'|'C'; at:number; enemy:string }
